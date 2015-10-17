@@ -41,16 +41,17 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
+.controller('StatsCtrl', function($scope) {
+  $scope.records = [
+    { city: 'Houston', date: 'Yesterday', id: 1 },
+    { city: 'Dublin', date: 'Two months ago', id: 2 },
+    { city: 'Seattle', date: 'When you were born', id: 3 },
+    { city: 'Chicago', date: 'Three years from now', id: 4 },
+    { city: 'London', date: 'now', id: 5 },
+    { city: 'Paris', date: '5 minutes ago', id: 6 }
   ];
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+.controller('RecordCtrl', function($scope) {
+
 });

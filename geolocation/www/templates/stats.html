@@ -1,0 +1,9 @@
+<ion-view view-title="Stats">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="record in records" href="#/app/stats/{{record.id}}">
+        {{record.city}}: {{record.date}}
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
