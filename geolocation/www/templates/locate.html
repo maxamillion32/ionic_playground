@@ -1,5 +1,29 @@
 <ion-view view-title="Locate">
   <ion-content>
+
     <h1>Locate</h1>
+
+    <div ng-model="err" ng-if="err">
+        <h4><i class="icon icon-left ion-sad-outline"></i>  Oh no!</h4>
+        <h5>There was an error while fetching your location:</h5>
+        <p>{{err}}</p>
+    </div>
+
+    <div class="list">
+      <label class="item item-input item-stacked-label">
+        <span class="input-label">Latitude</span>
+        <input type="text" ng-model="lat" placeholder="47.6097 N">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class-"input-label">Longitude</span>
+        <input type="text" ng-model="lng" placeholder="-122.3331 W">
+      </label>
+    </div>
+
+    <button class="button button-block button-balanced" ng-click="getLocation()">
+      <i class="icon ion-location"></i>
+      Get my location
+    </button>
+
   </ion-content>
 </ion-view>

@@ -39,6 +39,26 @@ angular.module('starter.controllers', [])
       $scope.closeLogin();
     }, 1000);
   };
+
+  // Fetch the user's current location
+  $scope.getLocation = function() {
+    console.log('Getting location...');
+
+    function success(pos) {
+      console.log('pos', pos);
+      $scope.lat = pos.coords.latitude;
+      $scope.lng = pos.coords.longitude;
+    }
+
+    function error(err) {
+      console.log('err', err);
+      $scope.err = err.message;
+    }
+
+
+    navigator.geolocation.getCurrentPosition(success, error);
+  };
+
 })
 
 .controller('StatsCtrl', function($scope) {
