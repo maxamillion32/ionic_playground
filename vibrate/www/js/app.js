@@ -51,20 +51,20 @@ angular.module('starter', ['ionic', 'starter.controllers'])
   })
 
   .state('tab.three', {
-      url: '/three',
+      url: '/two',
       views: {
-        'tab-three': {
-          templateUrl: 'templates/tab-three.html',
+        'tab-two': {
+          templateUrl: 'templates/tab-two.html',
           controller: 'VibrateCtrl'
         }
       }
     })
 
   .state('tab.pattern', {
-    url: '/pattern',
+    url: '/three',
     views: {
-      'tab-pattern': {
-        templateUrl: 'templates/tab-pattern.html',
+      'tab-three': {
+        templateUrl: 'templates/tab-three.html',
         controller: 'VibrateCtrl'
       }
     }
