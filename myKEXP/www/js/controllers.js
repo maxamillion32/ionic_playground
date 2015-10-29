@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('kexp.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
 
@@ -8,21 +8,6 @@ angular.module('starter.controllers', [])
   // listen for the $ionicView.enter event:
   //$scope.$on('$ionicView.enter', function(e) {
   //});
-
-  function success(pos) {
-    console.log('pos', pos);
-    $scope.lat = pos.coords.latitude;
-    $scope.lng = pos.coords.longitude;
-  }
-
-  function error(err) {
-    console.log('err', err);
-    $scope.err = err.message;
-  }
-
-  document.addEventListener("deviceready", function() {
-    $scope.getLocation = navigator.geolocation.getCurrentPosition(success, error);
-  }, false);
 
   // Form data for the login modal
   $scope.loginData = {};
@@ -54,20 +39,18 @@ angular.module('starter.controllers', [])
       $scope.closeLogin();
     }, 1000);
   };
-
 })
 
-.controller('StatsCtrl', function($scope) {
-  $scope.records = [
-    { city: 'Houston', date: 'Yesterday', id: 1 },
-    { city: 'Dublin', date: 'Two months ago', id: 2 },
-    { city: 'Seattle', date: 'When you were born', id: 3 },
-    { city: 'Chicago', date: 'Three years from now', id: 4 },
-    { city: 'London', date: 'now', id: 5 },
-    { city: 'Paris', date: '5 minutes ago', id: 6 }
+.controller('PlaylistsCtrl', function($scope) {
+  $scope.playlists = [
+    { title: 'Reggae', id: 1 },
+    { title: 'Chill', id: 2 },
+    { title: 'Dubstep', id: 3 },
+    { title: 'Indie', id: 4 },
+    { title: 'Rap', id: 5 },
+    { title: 'Cowbell', id: 6 }
   ];
 })
 
-.controller('RecordCtrl', function($scope) {
-
+.controller('PlaylistCtrl', function($scope, $stateParams) {
 });
