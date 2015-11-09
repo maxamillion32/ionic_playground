@@ -1,56 +1,46 @@
-angular.module('kexy.services', [])
-
+angular.module('kexp.services', [])
 
   // Song currently playing on KEXP.
-  .factory('CurrentlyPlaying', function($http, $q) {
+  .factory('Song', function($http, $q) {
 
-    var cp = {
-      artist: null,
-      album: null,
-      track: null,
-      lastUpdated: null,
-      picUrl: null,
-      url: null,
-      program: null
+    var song = {
+      current: {}
     };
 
-    cp.setCurrentTrack = function() {
+    // Pull data on currently playing song from KEXP.
+    song.getCurrentlyPlaying = function() {
+
+      var req = {
+        method: 'GET',
+        url: 'http://localhost:3000',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+      return $http(req).then(
+        function(res) { // Success
+          song.current = res.data;
+        },
+        function(res) { // Error
+          song.current = null;
+        }
+      );
     };
 
+    return song;
 
-  // User data.
-  .factory('User', function($http, $q $localstorage) {
+    // Check if currently playing is in user favorites
+    //  Yes? Button = Add to favorites
+    //  No?  Button = Remove from favorites
+  })
 
-    var user = {
-      username: false,
-      session_id: false,
-      favorites: [],
-      newFavorites: 0
-    };
 
-    user.setSession = function(username, session_id, favorites) {
-    }
-
-    user.addSongToFavorites = function(song) {
-    };
-
-    user.removeSongFromFavorites = function(song, index) {
-    };
-
-    user.populateFavorites = function() {
-    };
-
-    user.favoriteCount = function() {
-    };
-
-    user.auth = function(username, signingUp) {
-    };
-
-    user.checkSession = function() {
-    };
-
-    user.destroySession = function() {
-    };
-
-    return user;
+  // User data
+  .factory('User', function() {
+    // Favorite song
+    // Unfavorite song
+    // Add to fetched songs
+    // Remove from fetched songs
+    // Login/Logout stuff
   });

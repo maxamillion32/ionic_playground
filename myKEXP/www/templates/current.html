@@ -1,0 +1,32 @@
+<ion-view view-title="Currently Playing">
+  <ion-content>
+    <div class="list card">
+
+      <div class="item item-image">
+        <img ng-src={{imgSrc}}>
+      </div>
+
+      <div class="item item-body">
+        <h3 class="song_title">{{song.TrackName}}</h3>
+        <h4 class="song_artist">{{song.ArtistName}}</h4>
+        <h4 class="song_year">{{song.ReleaseEventDate.Year}}</h4>
+        <div ng-if="song.IsLocal">
+          <i class="icon ion-home"></i>
+          This artist is local!
+        </div>
+      </div>
+
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <a class="tab-item" href="#">
+          <i class="icon ion-thumbsup"></i>
+          Add to favorites
+        </a>
+        <a class="tab-item" href="#">
+          <i class="icon ion-share"></i>
+          Share
+        </a>
+      </div>
+
+    </div>
+  </ion-content>
+</ion-view>

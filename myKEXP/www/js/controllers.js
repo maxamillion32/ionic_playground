@@ -1,4 +1,4 @@
-angular.module('kexp.controllers', [])
+angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
 
@@ -41,8 +41,32 @@ angular.module('kexp.controllers', [])
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
+
+// Currently playing song.
+.controller('CurrentCtrl', function($scope, Song) {
+
+  // Fetch data.
+  Song.getCurrentlyPlaying();
+
+  // Default value.
+  $scope.song = {};
+
+  // Update $scope.song whenever service updates.
+  $scope.$watch(function() { return Song.current; },
+    function(newValue, oldValue) {
+      if (typeof newValue !== 'undefined') {
+        $scope.song = Song.current;
+      }
+  });
+
+  $scope.imgSrc = $scope.song.ReleaseImageUri ||
+  'http://wptsradio.org/wp-content/uploads/2012/11/music-vintage-vinyl-Favim.com-434847.jpg';
+})
+
+
+// Previously fetched songs.
+.controller('SongsCtrl', function($scope) {
+  $scope.songs = [
     { title: 'Reggae', id: 1 },
     { title: 'Chill', id: 2 },
     { title: 'Dubstep', id: 3 },
@@ -52,5 +76,7 @@ angular.module('kexp.controllers', [])
   ];
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
+
+// Song detail page.
+.controller('SongCtrl', function($scope, $stateParams) {
 });

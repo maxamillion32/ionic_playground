@@ -1,0 +1,19 @@
+{
+  "name": "kexp_server",
+  "version": "1.0.0",
+  "description": "Server that returns JSON info about currently playing song.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nathan Lyle Black",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^0.19.0",
+    "express": "^4.13.3",
+    "fetch": "^0.3.6"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}
