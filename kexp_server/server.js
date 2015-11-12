@@ -3,7 +3,7 @@ var express = require('express'),
     cheerio = require('cheerio'),
     app = express();
 
-var PORT = process.env.PORT || 3000,
+var PORT = process.env.PORT || 80,
     KEXP_URL = 'http://kexp.org/playlist';
 
 app.get('/', function(req, res) {
@@ -14,6 +14,10 @@ app.get('/', function(req, res) {
     var $ = cheerio.load(body.toString('utf8')),
         currentSong = $('#PlaylistItems').children().first(),
         data = currentSong.data('playlistitem');
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers',
+               'Origin, X-Requested-With, Content-Type, Accept');
 
     return res.json(data);
   });
