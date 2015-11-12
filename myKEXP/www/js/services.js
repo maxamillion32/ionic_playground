@@ -18,7 +18,7 @@ angular.module('kexp.services', [])
 
       var req = {
         method: 'GET',
-        url: 'http://localhost:3000',
+        url: 'http://kexp.lyleblack.com',
         headers: {
           'Content-Type': 'application/json'
         }
