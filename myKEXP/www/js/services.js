@@ -76,6 +76,7 @@ angular.module('kexp.services', [])
 
       for (var i = 0; i < user.fetchedSongs.length; i++) {
         if (song.id === user.fetchedSongs[i].id) {
+          console.log(user.fetchedSongs[i])
           user.fetchedSongs[i].favorite = true;
           break;
         }

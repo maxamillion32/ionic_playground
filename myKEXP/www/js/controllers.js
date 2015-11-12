@@ -59,15 +59,13 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       if (typeof newValue !== 'undefined' && Song.current.ArtistName) {
         User.addSongToFetched(Song.current);
         $scope.song = Song.current;
+        console.log(Song.current);
       }
   });
-
 
   $scope.addToFavorites = function(song) {
     User.addSongToFavorites(song);
   };
-
-  $scope.imgSrc = $scope.song.ReleaseImageUri || 'img/default.jpg';
 })
 
 
