@@ -1,10 +1,11 @@
 <ion-view view-title="Songs">
   <ion-content>
     <div class="list" ng-repeat="song in songs" href="#/app/songs/{{song.id}}">
-      <a class="item item-thumbnail-left" href="#">
+      <a class="item item-thumbnail-left item-icon-right" href="#">
         <img ng-src="{{song.ReleaseImageUri}}">
         <h2>{{song.TrackName}}</h2>
         <p>{{song.ArtistName}}</p>
+        <i class="icon ion-heart"></i>
       </a>
     </div>
   </ion-content>

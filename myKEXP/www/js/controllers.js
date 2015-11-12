@@ -53,10 +53,11 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
   // Update $scope.song whenever service updates.
   $scope.$watch(function() { return Song.current; },
+
+    // Add song to fetched and $scope.
     function(newValue, oldValue) {
-      if (typeof newValue !== 'undefined') {
+      if (typeof newValue !== 'undefined' && Song.current.ArtistName) {
         User.addSongToFetched(Song.current);
-        console.log('fetched', User.fetchedSongs)
         $scope.song = Song.current;
       }
   });
