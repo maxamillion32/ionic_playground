@@ -34,7 +34,6 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
 
   // Currently playing page.
   .state('app.current', {
-      //cache: false,
       url: '/current',
       views: {
         'menuContent': {

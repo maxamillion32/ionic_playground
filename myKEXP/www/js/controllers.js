@@ -45,27 +45,18 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 // Currently playing song.
 .controller('CurrentCtrl', function($scope, Song, User) {
 
-  // Fetch data.
-  Song.getCurrentlyPlaying();
+  $scope.$on('$ionicView.enter', function(e) {
 
-  // Default value.
-  $scope.song = {};
-
-  // Update $scope.song whenever service updates.
-  $scope.$watch(function() { return Song.getCurrent(); },
-
-    // Add song to fetched and $scope.
-    function(newValue, oldValue) {
+    // Fetch current song and add to $scope.
+    Song.getCurrentlyPlaying().then(function() {
       var currentSong = Song.getCurrent();
 
-      if (typeof newValue !== 'undefined' && currentSong) {
+      $scope.song = currentSong;
 
-        if (!currentSong.airBreak) {
-          User.addSongToFetched(currentSong);
-        }
-
-        $scope.song = currentSong;
+      if (!currentSong.airBreak) {
+        User.addSongToFetched(currentSong);
       }
+    });
   });
 
   $scope.addToFavorites = function(song) {
@@ -80,7 +71,6 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 // Previously fetched songs.
 .controller('SongsCtrl', function($scope, User) {
-  console.log('user.getFetched()', User.getFetched())
   $scope.songs = User.getFetched();
 })
 

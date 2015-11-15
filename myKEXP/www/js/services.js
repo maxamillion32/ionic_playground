@@ -58,7 +58,11 @@ angular.module('kexp.services', [])
     // Keep list of all fetched songs
     user.addSongToFetched = function(song) {
       if (!song) return;
-      user.fetchedSongs.unshift(song);
+
+      // Only add song if not already in queue.
+      if (!includes(user.fetchedSongs, song)) {
+        user.fetchedSongs.unshift(song);
+      }
     };
 
 
@@ -66,12 +70,9 @@ angular.module('kexp.services', [])
     user.removeSongFromFetched = function(song) {
       if (!song) return;
 
-      for (var i = 0; i < user.fetchedSongs.length; i++) {
-        if (song.id === user.fetchedSongs[i].id) {
-          user.fetchedSongs.splice(i, 1);
-          break;
-        }
-      }
+      return includes(user.fetchedSongs, song, function(found, i) {
+        user.fetchedSongs.splice(i, 1);
+      });
     };
 
 
@@ -79,12 +80,9 @@ angular.module('kexp.services', [])
     user.addSongToFavorites = function(song) {
       if (!song) return;
 
-      for (var i = 0; i < user.fetchedSongs.length; i++) {
-        if (song.id === user.fetchedSongs[i].id) {
-          user.fetchedSongs[i].favorite = true;
-          break;
-        }
-      }
+      return includes(user.fetchedSongs, song, function(s) {
+        s.favorite = true;
+      });
     };
 
 
@@ -92,12 +90,9 @@ angular.module('kexp.services', [])
     user.removeSongFromFavorites = function(song) {
       if (!song) return;
 
-      for (var i = 0; i < user.fetchedSongs.length; i++) {
-        if (song.id === user.fetchedSongs[i].id) {
-          user.fetchedSongs[i].favorite = false;
-          break;
-        }
-      }
+      return includes(user.fetchedSongs, song, function(s) {
+        s.favorite = false;
+      });
     };
 
 
@@ -121,6 +116,20 @@ angular.module('kexp.services', [])
         return song.IsLocal;
       })
     };
+
+    // Helper that returns true if song is in list.
+    // Calls cb on found item if cb passed in.
+    function includes(list, song, cb) {
+      for (var i = 0; i < list.length; i++) {
+        if (song.id === list[i].id) {
+          if (cb && typeof cb === 'function') {
+            cb(list[i], i);
+          }
+          return true;
+        }
+      }
+      return false;
+    }
 
     /* TODO Login/Logout stuff */
 
