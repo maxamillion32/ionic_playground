@@ -3,18 +3,17 @@ angular.module('kexp.services', [])
   // Song currently playing on KEXP.
   .factory('Song', function($http, $q) {
 
-    var song = {
-      current: {}
-    };
+    var s = {};
+
+    var song = { current: null };
 
     var defaultSong = {
       favorite: false,
       id: '' + Date.now() + Math.floor((Math.random() * 1000))
     };
 
-
     // Pull data on currently playing song from KEXP.
-    song.getCurrentlyPlaying = function() {
+    s.getCurrentlyPlaying = function() {
 
       var req = {
         method: 'GET',
@@ -26,7 +25,13 @@ angular.module('kexp.services', [])
 
       return $http(req).then(
         function(res) { // Success
-          song.current = angular.extend(defaultSong, res.data);
+          var data = res.data;
+
+          if (!data.ArtistName && !data.TrackName) {
+            song.current = { airBreak: true };
+          } else {
+            song.current = angular.extend(defaultSong, data);
+          }
         },
         function(res) { // Error
           song.current = null;
@@ -34,12 +39,12 @@ angular.module('kexp.services', [])
       );
     };
 
-    return song;
 
-    /* TODO
-    Check if currently playing song is already in user
-    favorites. Yes? Button = 'Add to favorites'
-    No? Button = 'Remove from favorites' */
+    s.getCurrent = function() {
+      return song.current;
+    };
+
+    return s;
   })
 
 
@@ -76,7 +81,6 @@ angular.module('kexp.services', [])
 
       for (var i = 0; i < user.fetchedSongs.length; i++) {
         if (song.id === user.fetchedSongs[i].id) {
-          console.log(user.fetchedSongs[i])
           user.fetchedSongs[i].favorite = true;
           break;
         }

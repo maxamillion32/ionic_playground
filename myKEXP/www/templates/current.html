@@ -6,7 +6,7 @@
         <img ng-src="{{song.LargeExtImage || 'img/default.jpg'}}">
       </div>
 
-      <div class="item item-body">
+      <div class="item item-body" ng-if="!song.airBreak">
         <h3 class="song_title">{{song.TrackName}}</h3>
         <h4 class="song_artist">{{song.ArtistName}}</h4>
         <h4 class="song_year">{{song.ReleaseEventDate.Year}}</h4>
@@ -16,10 +16,18 @@
         </div>
       </div>
 
+      <div class="item item-body" ng-if="song.airBreak">
+        <h3>AIR BREAK...</h3>
+      </div>
+
       <div class="item tabs tabs-secondary tabs-icon-left">
-        <a class="tab-item" href="#" ng-click="addToFavorites(song)">
+        <a class="tab-item" href="#" ng-if="!song.favorite" ng-click="addToFavorites(song)">
           <i class="icon ion-thumbsup"></i>
           Add to favorites
+        </a>
+        <a class="tab-item" href="#" ng-if="song.favorite" ng-click="removeFromFavorites(song)">
+          <i class="icon ion-trash-a"></i>
+          Remove from favorites
         </a>
         <a class="tab-item" href="#">
           <i class="icon ion-share"></i>

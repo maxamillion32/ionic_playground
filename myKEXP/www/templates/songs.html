@@ -1,6 +1,6 @@
 <ion-view view-title="Songs">
   <ion-content>
-    <div class="list" ng-repeat="song in songs" href="#/app/songs/{{song.id}}">
+    <div class="list" ng-repeat="song in songs track by $index" href="#/app/songs/{{song.id}}">
       <a class="item item-thumbnail-left item-icon-right" href="#">
         <img ng-src="{{song.ReleaseImageUri || 'img/default.jpg'}}">
         <h2>{{song.TrackName}}</h2>
