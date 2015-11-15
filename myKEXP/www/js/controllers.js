@@ -46,8 +46,11 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 .controller('CurrentCtrl', function($scope, Song, User) {
 
   $scope.$on('$ionicView.enter', function(e) {
+    $scope.refresh();
+  });
 
-    // Fetch current song and add to $scope.
+  // Fetch currently playing song and add to scope.
+  $scope.refresh = function() {
     Song.getCurrentlyPlaying().then(function() {
       var currentSong = Song.getCurrent();
 
@@ -56,8 +59,11 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       if (!currentSong.airBreak) {
         User.addSongToFetched(currentSong);
       }
-    });
-  });
+    })
+    .finally(function() {
+      $scope.$broadcast('scroll.refreshComplete');
+    })
+  };
 
   $scope.addToFavorites = function(song) {
     User.addSongToFavorites(song);
