@@ -1,15 +1,19 @@
 <ion-view view-title="Songs">
   <ion-content>
 
-    <div class="list" ng-repeat="song in songs" href="#/app/songs/{{song.id}}">
-      <a class="item item-thumbnail-left item-icon-right" href="#">
+    <ion-list>
+      <ion-item class="item-thumbnail-left item-icon-right"
+                ng-repeat="song in songs track by $index"
+                href="#/app/songs/{{song.id}}">
         <img ng-src="{{song.ReleaseImageUri || 'img/default.jpg'}}">
         <h2>{{song.TrackName}}</h2>
         <p>{{song.ArtistName}}</p>
         <i ng-if="song.favorite" class="icon ion-heart"></i>
-      </a>
-    </div>
-
+        <ion-option-button class="ion-minus-circled button-assertive"
+                           ng-click="removeSong(song)">
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
   </ion-content>
   <ion-footer-bar>
     <div class="tabs tabs-icon-top">

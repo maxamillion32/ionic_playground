@@ -55,6 +55,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       var currentSong = Song.getCurrent(),
           prevSong = $scope.song;
 
+      // Don't continue if fetched song is same as previous one.
       if (prevSong && prevSong.ArtistName === currentSong.ArtistName) {
         return;
       }
@@ -82,21 +83,24 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 // Previously fetched songs.
 .controller('SongsCtrl', function($scope, User) {
+
   $scope.$on('$ionicView.enter', function(e) {
     $scope.songs = User.getFetched();
   });
 
-  $scope.getFetched = function() {
+  $scope.getFetched = function(e) {
     $scope.songs = User.getFetched();
   };
 
-  $scope.getFavorites = function() {
+  $scope.getFavorites = function(e) {
     $scope.songs = User.getFavorites();
   };
 
-  $scope.getLocal = function() {
+  $scope.getLocal = function(e) {
     $scope.songs = User.getLocal();
   };
+
+  $scope.removeSong = User.removeSongFromFetched;
 })
 
 

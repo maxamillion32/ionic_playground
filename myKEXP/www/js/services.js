@@ -1,4 +1,4 @@
-angular.module('kexp.services', [])
+angular.module('kexp.services', ['kexp.utils'])
 
   // Song currently playing on KEXP.
   .factory('Song', function($http, $q) {
@@ -7,10 +7,10 @@ angular.module('kexp.services', [])
 
     var song = { current: null };
 
-    s.getDefault = function() {
+    s.getDefault = function(song) {
       return {
         favorite: false,
-        id: '' + Date.now() + Math.floor((Math.random() * 1000))
+        id: JSON.stringify(song)
       };
     };
 
@@ -32,7 +32,7 @@ angular.module('kexp.services', [])
           if (!data.ArtistName && !data.TrackName) {
             song.current = { airBreak: true };
           } else {
-            song.current = angular.extend(s.getDefault(), data);
+            song.current = angular.extend(s.getDefault(data), data);
           }
         },
         function(res) { // Error
@@ -51,73 +51,83 @@ angular.module('kexp.services', [])
 
 
   // User data
-  .factory('User', function() {
+  .factory('User', function($localstorage) {
 
-    var user = {
-      fetchedSongs: []
-    };
+    var u = {};
+
+    var songs = $localstorage.getObject('songs');
+
+    songs.list = songs.list || [];
 
     // Keep list of all fetched songs
-    user.addSongToFetched = function(song) {
+    u.addSongToFetched = function(song) {
       if (!song) return;
 
       // Only add song if not already in queue.
-      if (!includes(user.fetchedSongs, song)) {
-        user.fetchedSongs.unshift(song);
+      if (!includes(songs.list, song)) {
+        songs.list.unshift(song);
       }
+
+      $localstorage.setObject('songs', songs);
     };
 
 
     // Remove from list.
-    user.removeSongFromFetched = function(song) {
+    u.removeSongFromFetched = function(song) {
       if (!song) return;
 
-      return includes(user.fetchedSongs, song, function(found, i) {
-        user.fetchedSongs.splice(i, 1);
+      return includes(songs.list, song, function(found, i) {
+        songs.list.splice(i, 1);
+        $localstorage.setObject('songs', songs);
       });
     };
 
 
     // Keep list of favorites.
-    user.addSongToFavorites = function(song) {
+    u.addSongToFavorites = function(song) {
       if (!song) return;
 
-      return includes(user.fetchedSongs, song, function(s) {
+      return includes(songs.list, song, function(s) {
         s.favorite = true;
+        $localstorage.setObject('songs', songs);
       });
     };
 
 
     // Remove from favorites.
-    user.removeSongFromFavorites = function(song) {
+    u.removeSongFromFavorites = function(song) {
       if (!song) return;
 
-      return includes(user.fetchedSongs, song, function(s) {
+      return includes(songs.list, song, function(s) {
         s.favorite = false;
+        $localstorage.setObject('songs', songs);
       });
     };
 
 
     // Return all songs user has fetched.
-    user.getFetched = function() {
-      return user.fetchedSongs;
+    u.getFetched = function() {
+      return songs.list;
     };
 
 
     // Return all songs user has favorited.
-    user.getFavorites = function() {
-      return user.fetchedSongs.filter(function(song, i) {
+    u.getFavorites = function() {
+      return songs.list.filter(function(song, i) {
         return song.favorite;
       });
     };
 
 
     // Get all local songs user has fetched.
-    user.getLocal = function() {
-      return user.fetchedSongs.filter(function(song, i) {
+    u.getLocal = function() {
+      return songs.list.filter(function(song, i) {
         return song.IsLocal;
       })
     };
+
+
+    u.includes = includes;
 
     // Helper that returns true if song is in list.
     // Calls cb on found item if cb passed in.
@@ -135,5 +145,5 @@ angular.module('kexp.services', [])
 
     /* TODO Login/Logout stuff */
 
-    return user;
+    return u;
   });
