@@ -8,9 +8,20 @@ angular.module('kexp.services', ['kexp.utils'])
     var song = { current: null };
 
     s.getDefault = function(song) {
+
+      // Since some of the attributes in the song object change frequently,
+      // grab the relevant data and use it to make a unique (enough) id.
+      var data = {
+        artist: song.ArtistName,
+        album: song.ReleaseName,
+        track: song.TrackName,
+        year: song.ReleaseEventDate,
+        img: song.ReleaseImageUri
+      };
+
       return {
         favorite: false,
-        id: JSON.stringify(song)
+        id: JSON.stringify(data)
       };
     };
 

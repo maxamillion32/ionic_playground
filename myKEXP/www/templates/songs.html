@@ -8,7 +8,11 @@
         <img ng-src="{{song.ReleaseImageUri || 'img/default.jpg'}}">
         <h2>{{song.TrackName}}</h2>
         <p>{{song.ArtistName}}</p>
-        <i ng-if="song.favorite" class="icon ion-heart"></i>
+        <i ng-if="song.favorite" class="assertive icon ion-heart"></i>
+        <i ng-if="song.IsLocal" class="royal icon ion-home"></i>
+        <ion-option-button class="ion-heart button-balanced"
+                           ng-click="addToFavorites(song)">
+        </ion-option-button>
         <ion-option-button class="ion-minus-circled button-assertive"
                            ng-click="removeSong(song)">
         </ion-option-button>
@@ -17,16 +21,16 @@
   </ion-content>
   <ion-footer-bar>
     <div class="tabs tabs-icon-top">
-      <a class="tab-item" href="#" ng-click="getFetched()">
+      <a class="tab-item" ng-click="getFetched()">
         <i class="icon ion-music-note"></i>
         All
       </a>
-      <a class="tab-item" href="#" ng-click="getFavorites()">
+      <a class="tab-item" ng-click="getFavorites()">
         <i class="icon ion-heart"></i>
         Favorites
       </a>
-      <a class="tab-item" href="#" ng-click="getLocal()">
-        <i class="icon ion-music-note"></i>
+      <a class="tab-item" ng-click="getLocal()">
+        <i class="icon ion-home"></i>
         Local
       </a>
     </div>

@@ -88,18 +88,19 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
     $scope.songs = User.getFetched();
   });
 
-  $scope.getFetched = function(e) {
+  $scope.getFetched = function() {
     $scope.songs = User.getFetched();
   };
 
-  $scope.getFavorites = function(e) {
+  $scope.getFavorites = function() {
     $scope.songs = User.getFavorites();
   };
 
-  $scope.getLocal = function(e) {
+  $scope.getLocal = function() {
     $scope.songs = User.getLocal();
   };
 
+  $scope.addToFavorites = User.addSongToFavorites;
   $scope.removeSong = User.removeSongFromFetched;
 })
 
