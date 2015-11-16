@@ -52,7 +52,12 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
   // Fetch currently playing song and add to scope.
   $scope.refresh = function() {
     Song.getCurrentlyPlaying().then(function() {
-      var currentSong = Song.getCurrent();
+      var currentSong = Song.getCurrent(),
+          prevSong = $scope.song;
+
+      if (prevSong && prevSong.ArtistName === currentSong.ArtistName) {
+        return;
+      }
 
       $scope.song = currentSong;
 
@@ -61,7 +66,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       }
     })
     .finally(function() {
-      $scope.$broadcast('scroll.refreshComplete');
+      $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
     })
   };
 
@@ -77,7 +82,21 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 // Previously fetched songs.
 .controller('SongsCtrl', function($scope, User) {
-  $scope.songs = User.getFetched();
+  $scope.$on('$ionicView.enter', function(e) {
+    $scope.songs = User.getFetched();
+  });
+
+  $scope.getFetched = function() {
+    $scope.songs = User.getFetched();
+  };
+
+  $scope.getFavorites = function() {
+    $scope.songs = User.getFavorites();
+  };
+
+  $scope.getLocal = function() {
+    $scope.songs = User.getLocal();
+  };
 })
 
 

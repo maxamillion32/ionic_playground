@@ -7,9 +7,11 @@ angular.module('kexp.services', [])
 
     var song = { current: null };
 
-    var defaultSong = {
-      favorite: false,
-      id: '' + Date.now() + Math.floor((Math.random() * 1000))
+    s.getDefault = function() {
+      return {
+        favorite: false,
+        id: '' + Date.now() + Math.floor((Math.random() * 1000))
+      };
     };
 
     // Pull data on currently playing song from KEXP.
@@ -30,7 +32,7 @@ angular.module('kexp.services', [])
           if (!data.ArtistName && !data.TrackName) {
             song.current = { airBreak: true };
           } else {
-            song.current = angular.extend(defaultSong, data);
+            song.current = angular.extend(s.getDefault(), data);
           }
         },
         function(res) { // Error

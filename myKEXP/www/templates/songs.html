@@ -1,6 +1,7 @@
 <ion-view view-title="Songs">
   <ion-content>
-    <div class="list" ng-repeat="song in songs track by $index" href="#/app/songs/{{song.id}}">
+
+    <div class="list" ng-repeat="song in songs" href="#/app/songs/{{song.id}}">
       <a class="item item-thumbnail-left item-icon-right" href="#">
         <img ng-src="{{song.ReleaseImageUri || 'img/default.jpg'}}">
         <h2>{{song.TrackName}}</h2>
@@ -8,5 +9,22 @@
         <i ng-if="song.favorite" class="icon ion-heart"></i>
       </a>
     </div>
+
   </ion-content>
+  <ion-footer-bar>
+    <div class="tabs tabs-icon-top">
+      <a class="tab-item" href="#" ng-click="getFetched()">
+        <i class="icon ion-music-note"></i>
+        All
+      </a>
+      <a class="tab-item" href="#" ng-click="getFavorites()">
+        <i class="icon ion-heart"></i>
+        Favorites
+      </a>
+      <a class="tab-item" href="#" ng-click="getLocal()">
+        <i class="icon ion-music-note"></i>
+        Local
+      </a>
+    </div>
+  </ion-footer-bar>
 </ion-view>
