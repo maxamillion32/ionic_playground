@@ -11,17 +11,14 @@ angular.module('kexp.services', ['kexp.utils'])
 
       // Since some of the attributes in the song object change frequently,
       // grab the relevant data and use it to make a unique (enough) id.
-      var data = {
-        artist: song.ArtistName,
-        album: song.ReleaseName,
-        track: song.TrackName,
-        year: song.ReleaseEventDate,
-        img: song.ReleaseImageUri
-      };
+      var id = song.ArtistName +
+               song.ReleaseName +
+               song.TrackName +
+               song.ReleaseImageUri;
 
       return {
         favorite: false,
-        id: JSON.stringify(data)
+        id: btoa(id)
       };
     };
 
@@ -136,6 +133,17 @@ angular.module('kexp.services', ['kexp.utils'])
         return song.IsLocal;
       })
     };
+
+
+    // Get song with current id.
+    u.getSong = function(id) {
+      for (var i = 0; i < songs.list.length; i++) {
+        if (id === songs.list[i].id) {
+          return songs.list[i];
+        }
+      }
+      return null;
+    }
 
 
     u.includes = includes;

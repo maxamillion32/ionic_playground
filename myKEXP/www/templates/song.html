@@ -1,5 +1,38 @@
 <ion-view view-title="Song">
   <ion-content>
-    <h1>Song</h1>
+    <div class="list card">
+
+      <div class="item item-image">
+        <img ng-src="{{song.LargeExtImage || 'img/default.jpg'}}">
+      </div>
+
+      <div class="item item-body">
+        <h3 class="song_title">{{song.TrackName}}</h3>
+        <h4 class="song_artist">{{song.ArtistName}}</h4>
+        <h4 class="song_year">{{song.ReleaseEventDate.Year}}</h4>
+        <div ng-if="song.IsLocal">
+          <i class="icon ion-home"></i>
+          This artist is local!
+        </div>
+        <div class="icon-right" ng-if="song.favorite">
+          <i class="icon ion-heart"></i>
+        </div>
+      </div>
+
+      <div class="item tabs tabs-secondary tabs-icon-left">
+        <a class="tab-item" href="#" ng-if="!song.favorite" ng-click="addToFavorites(song)">
+          <i class="icon ion-thumbsup"></i>
+          Add to favorites
+        </a>
+        <a class="tab-item" href="#" ng-if="song.favorite" ng-click="removeFromFavorites(song)">
+          <i class="icon ion-trash-a"></i>
+          Remove from favorites
+        </a>
+        <a class="tab-item" href="#">
+          <i class="icon ion-share"></i>
+          Share
+        </a>
+      </div>
+    </div>
   </ion-content>
 </ion-view>

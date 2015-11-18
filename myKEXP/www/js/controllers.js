@@ -106,5 +106,15 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 
 // Song detail page.
-.controller('SongCtrl', function($scope, $stateParams) {
+.controller('SongCtrl', function($scope, $stateParams, User) {
+
+  $scope.song = User.getSong($stateParams.songId);
+
+  $scope.addToFavorites = function(song) {
+    User.addSongToFavorites(song);
+  };
+
+  $scope.removeFromFavorites = function(song) {
+    User.removeSongFromFavorites(song);
+  };
 });

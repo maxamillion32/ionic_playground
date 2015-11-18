@@ -3,6 +3,7 @@
 
     <ion-list>
       <ion-item class="item-thumbnail-left item-icon-right"
+                menu-close
                 ng-repeat="song in songs track by $index"
                 href="#/app/songs/{{song.id}}">
         <img ng-src="{{song.ReleaseImageUri || 'img/default.jpg'}}">
