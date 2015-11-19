@@ -1,10 +1,13 @@
 <ion-view view-title="Chats">
+  <ion-nav-buttons side="right">
+      <button class="button button-icon icon ion-compose"></button>
+  </ion-nav-buttons>
   <ion-content>
     <ion-list>
       <ion-item class="item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/chats/{{chat.metadata.board}}">
-        <h2>{{chat.metadata.board}}</h2>
-        <p>{{chat.metadata.lastMessage.body}}</p>
-        <p>{{chat.metadata.lastMessage.from}}</p>
+        <h2>{{ chat.metadata.board }}</h2>
+        <p>{{ chat.metadata.lastMessage.body }}</p>
+        <p>{{ chat.metadata.lastMessage.from }}</p>
         <i class="icon ion-chevron-right icon-accessory"></i>
       </ion-item>
     </ion-list>

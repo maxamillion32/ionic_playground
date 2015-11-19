@@ -1,3 +1,4 @@
+
 <!--
   This template loads for the 'tab.friend-detail' state (app.js)
   'friend' is a $scope variable created in the FriendsCtrl controller (controllers.js)
@@ -6,11 +7,17 @@
 -->
 <ion-view view-title="{{ name }}">
   <ion-content class="padding">
-    <ul>
-      <li ng-repeat="message in messages">
-        <p>{{ message.body }}</p>
-        <p>{{ message.from }}</p>
-      </li>
-    </ul>
+      <ul class="messages">
+        <li ng-repeat="message in messages">
+          <p>{{ message.body }}</p>
+          <p><i class="icon ion-person"></i>&nbsp;{{ message.from }}</p>
+        </li>
+      </ul>
   </ion-content>
+  <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+    <label class="item-input-wrapper">
+      <input type="text" placeholder="What's happening?" />
+    </label>
+    <a class="button button-icon ion-paper-airplane"></a>
+  </ion-footer-bar>
 </ion-view>
