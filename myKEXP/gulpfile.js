@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var babel = require('gulp-babel');
 var gutil = require('gulp-util');
 var bower = require('bower');
 var concat = require('gulp-concat');
@@ -11,7 +12,15 @@ var paths = {
   sass: ['./scss/**/*.scss']
 };
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['sass', 'babel']);
+
+gulp.task('babel', function() {
+  return gulp.src('./www/js/*.js')
+             .pipe(babel({
+               presets: ['es2015']
+             }))
+             .pipe(gulp.dest('./www/dist/js/'));
+});
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
