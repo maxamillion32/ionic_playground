@@ -23,8 +23,12 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
   };
 
   // Perform the login action when the user submits the login form
-  $scope.doLogin = function (loginData) {
-    User.login(loginData);
+  $scope.doLogin = function (loginData, signingUp) {
+    if (signingUp) {
+      User.signup(loginData);
+    } else {
+      User.login(loginData);
+    }
     $scope.closeLogin();
   };
 })

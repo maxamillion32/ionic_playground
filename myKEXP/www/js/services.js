@@ -1,17 +1,18 @@
-angular.module('kexp.services', ['kexp.utils'])
+angular.module('kexp.services', ['kexp.utils', 'firebase'])
+
+  .constant('FIREBASE_URL', 'https://mykexp.firebaseio.com/')
 
   // Song currently playing on KEXP.
-  .factory('Song', function($http, $q) {
+  .factory('Song', ($http, $q) => {
+    let s = {};
 
-    var s = {};
+    let song = { current: null };
 
-    var song = { current: null };
-
-    s.getDefault = function(song) {
+    s.getDefault = (song) => {
 
       // Since some of the attributes in the song object change frequently,
       // grab the relevant data and use it to make a unique (enough) id.
-      var id = song.ArtistName +
+      let id = song.ArtistName +
                song.ReleaseName +
                song.TrackName +
                song.ReleaseImageUri;
@@ -23,9 +24,9 @@ angular.module('kexp.services', ['kexp.utils'])
     };
 
     // Pull data on currently playing song from KEXP.
-    s.getCurrentlyPlaying = function() {
+    s.getCurrentlyPlaying = () => {
 
-      var req = {
+      let req = {
         method: 'GET',
         url: 'http://kexp.lyleblack.com',
         headers: {
@@ -34,8 +35,9 @@ angular.module('kexp.services', ['kexp.utils'])
       };
 
       return $http(req).then(
-        function(res) { // Success
-          var data = res.data;
+        // Success
+        (res) => {
+          let data = res.data;
 
           if (!data.ArtistName && !data.TrackName) {
             song.current = { airBreak: true };
@@ -43,14 +45,15 @@ angular.module('kexp.services', ['kexp.utils'])
             song.current = angular.extend(s.getDefault(data), data);
           }
         },
-        function(res) { // Error
+        // Error
+        (res) => {
           song.current = null;
         }
       );
     };
 
 
-    s.getCurrent = function() {
+    s.getCurrent = () => {
       return song.current;
     };
 
@@ -59,110 +62,182 @@ angular.module('kexp.services', ['kexp.utils'])
 
 
   // User data
-  .factory('User', function($localstorage) {
+  .factory('User', ($localstorage, FIREBASE_URL, $helpers, $firebaseAuth) => {
 
-    var u = {};
+    let { getBlankUser, includes } = $helpers;
 
-    var songs = $localstorage.getObject('songs');
+    // Firebase
+    let ref = new Firebase(FIREBASE_URL),
+        auth = $firebaseAuth(ref);
 
-    songs.list = songs.list || [];
+    let userRefs = {
+      private: ref.child('users/private'),
+      public: ref.child('users/public')
+    };
+
+    // User object.
+    let _user = $helpers.getBlankUser();
+
+    // Object to return.
+    let u = {};
+
+
+    // Set user information in memory and in localhost.
+    u.setSession = ({ uid, email, songs }) => {
+      if (uid) _user.uid = uid;
+      if (email) _user.email = email;
+      if (songs) _user.songs = songs;
+
+      $localstorage.setObject('user', _user);
+    };
+
+
+    // True if user existing or in localhost.
+    u.checkSession = () => {
+      return new Promise((resolve, reject) => {
+
+        if (_user.uid) {
+           resolve(true);
+        } else {
+          let user = $localstorage.getObject('user');
+
+          if (user.uid) {
+            u.setSession(user);
+            u.fetchSongs().then(() => {
+              resolve(true);
+            });
+          }
+        }
+
+        resolve(false);
+      });
+    };
+
+
+    u.destroySession = () => {
+      _user = getBlankUser();
+      $localstorage.setObject('user', _user);
+    };
+
+
 
     // Keep list of all fetched songs
-    u.addSongToFetched = function(song) {
+    u.addSongToFetched = (song) => {
       if (!song) return;
 
       // Only add song if not already in queue.
-      if (!includes(songs.list, song)) {
-        songs.list.unshift(song);
+      if (!includes(_user.songs.list, song)) {
+        _user.songs.list.unshift(song);
       }
 
-      $localstorage.setObject('songs', songs);
+      // Fire off action to Firebase adding song to user.
     };
 
 
     // Remove from list.
-    u.removeSongFromFetched = function(song) {
+    u.removeSongFromFetched = (song) => {
       if (!song) return;
 
-      return includes(songs.list, song, function(found, i) {
-        songs.list.splice(i, 1);
-        $localstorage.setObject('songs', songs);
+      return includes(_user.songs.list, song, (found, i) => {
+        _user.songs.list.splice(i, 1);
+        // Action to Firebase to remove song.
       });
     };
 
 
     // Keep list of favorites.
-    u.addSongToFavorites = function(song) {
+    u.addSongToFavorites = (song) => {
       if (!song) return;
 
-      return includes(songs.list, song, function(s) {
+      return includes(_user.songs.list, song, (s) => {
         s.favorite = true;
-        $localstorage.setObject('songs', songs);
+        // Update Firebase
       });
     };
 
 
     // Remove from favorites.
-    u.removeSongFromFavorites = function(song) {
+    u.removeSongFromFavorites = (song) => {
       if (!song) return;
 
-      return includes(songs.list, song, function(s) {
+      return includes(_user.songs.list, song, (s) => {
         s.favorite = false;
-        $localstorage.setObject('songs', songs);
+        // Update firebase
       });
     };
 
 
     // Return all songs user has fetched.
-    u.getFetched = function() {
-      return songs.list;
+    u.getFetched = () => {
+      return _user.songs.list;
     };
 
 
     // Return all songs user has favorited.
-    u.getFavorites = function() {
-      return songs.list.filter(function(song, i) {
+    u.getFavorites = () => {
+      return _user.songs.list.filter((song, i) => {
         return song.favorite;
       });
     };
 
 
     // Get all local songs user has fetched.
-    u.getLocal = function() {
-      return songs.list.filter(function(song, i) {
+    u.getLocal = () => {
+      return _user.songs.list.filter((song, i) => {
         return song.IsLocal;
       })
     };
 
 
     // Get song with current id.
-    u.getSong = function(id) {
-      for (var i = 0; i < songs.list.length; i++) {
-        if (id === songs.list[i].id) {
-          return songs.list[i];
-        }
+    u.getSong = (id) => {
+      for (let song of _user.songs.list) {
+        if (id === song.id) return song;
       }
+
       return null;
     }
 
 
     u.includes = includes;
 
-    // Helper that returns true if song is in list.
-    // Calls cb on found item if cb passed in.
-    function includes(list, song, cb) {
-      for (var i = 0; i < list.length; i++) {
-        if (song.id === list[i].id) {
-          if (cb && typeof cb === 'function') {
-            cb(list[i], i);
-          }
-          return true;
-        }
-      }
-      return false;
-    }
 
-    /* TODO Login/Logout stuff */
+    u.login = (credentials) => {
+      auth.$authWithPassword(credentials, (err, authData) => {
+        if (err) return console.error('Login err: ', err);
+        console.log('data', authData);
+      });
+    };
+
+
+    u.logout = auth.$unauth;
+
+
+    u.signup = (credentials) => {
+      auth.$createUser(credentials)
+          .then((userData) => {
+
+            return auth.$authWithPassword(credentials);
+          }).then((authData) => {
+            let { uid } = authData ;
+
+            _user.email = credentials.email;
+            _user.auth = {
+              token: authData.token,
+              uid: authData.uid,
+              provider: authData.provider
+            };
+
+            // Store private/public user data.
+            userRefs.public.set({ [uid]: _user });
+            userRefs.private.set({ [uid]: _user });
+
+            console.log('Logged in as: ', _user);
+          }).catch((err) => {
+            console.error(`Error while authenticating: ${err}`);
+          });
+    };
 
     return u;
+
   });
