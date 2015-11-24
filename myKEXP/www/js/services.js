@@ -19,7 +19,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return {
         favorite: false,
-        id: btoa(id)
+        id: btoa(unescape(encodeURIComponent(id)))
       };
     };
 
@@ -71,8 +71,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         auth = $firebaseAuth(ref);
 
     let userRefs = {
-      private: ref.child('users/private'),
-      public: ref.child('users/public')
+      private: ref.child(`users/private`),
+      public: ref.child(`users/public`)
     };
 
     // User object.
@@ -83,12 +83,23 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Set user information in memory and in localhost.
-    u.setSession = ({ uid, email, songs }) => {
-      if (uid) _user.uid = uid;
-      if (email) _user.email = email;
-      if (songs) _user.songs = songs;
+    u.setSession = (user) => {
+      _user = user;
 
       $localstorage.setObject('user', _user);
+    };
+
+
+    // Load user info from Firebase using uid.
+    u.loadUser = () => {
+      userRefs.private.child(_user.auth.uid).on('value', (data) => {
+        let user = data.val();
+
+        _user.email = user.email;
+        _user.songs = user.songs;
+
+        $localstorage.setObject('user', _user);
+      });
     };
 
 
@@ -130,7 +141,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         _user.songs.list.unshift(song);
       }
 
-      // Fire off action to Firebase adding song to user.
+      userRefs.private.child(`${_user.auth.uid}/songs`)
+                      .update({list: _user.songs.list});
     };
 
 
@@ -140,7 +152,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (found, i) => {
         _user.songs.list.splice(i, 1);
-        // Action to Firebase to remove song.
+        userRefs.private.child(`${_user.auth.uid}/songs`)
+                        .set({list: _user.songs.list});
       });
     };
 
@@ -151,7 +164,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = true;
-        // Update Firebase
+        userRefs.private.child(`${_user.auth.uid}/songs`)
+                        .set({list: _user.songs.list});
       });
     };
 
@@ -162,7 +176,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = false;
-        // Update firebase
+        userRefs.private.child(`${_user.auth.uid}/songs`)
+                        .set({list: _user.songs.list});
       });
     };
 
@@ -203,10 +218,20 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     u.login = (credentials) => {
-      auth.$authWithPassword(credentials, (err, authData) => {
-        if (err) return console.error('Login err: ', err);
-        console.log('data', authData);
-      });
+      auth.$authWithPassword(credentials)
+          .then((authData) => {
+            _user.auth = {
+              token: authData.token,
+              uid: authData.uid,
+              provider: authData.provider
+            }
+
+            // Fetch songs from Firebase and load.
+            u.loadUser();
+          })
+          .catch((err) => {
+            console.error(err);
+          });
     };
 
 

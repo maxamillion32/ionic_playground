@@ -18,7 +18,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return {
       favorite: false,
-      id: btoa(id)
+      id: btoa(unescape(encodeURIComponent(id)))
     };
   };
 
@@ -79,16 +79,22 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   var u = {};
 
   // Set user information in memory and in localhost.
-  u.setSession = function (_ref) {
-    var uid = _ref.uid;
-    var email = _ref.email;
-    var songs = _ref.songs;
-
-    if (uid) _user.uid = uid;
-    if (email) _user.email = email;
-    if (songs) _user.songs = songs;
+  u.setSession = function (user) {
+    _user = user;
 
     $localstorage.setObject('user', _user);
+  };
+
+  // Load user info from Firebase using uid.
+  u.loadUser = function () {
+    userRefs.private.child(_user.auth.uid).on('value', function (data) {
+      var user = data.val();
+
+      _user.email = user.email;
+      _user.songs = user.songs;
+
+      $localstorage.setObject('user', _user);
+    });
   };
 
   // True if user existing or in localhost.
@@ -126,7 +132,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       _user.songs.list.unshift(song);
     }
 
-    // Fire off action to Firebase adding song to user.
+    userRefs.private.child(_user.auth.uid + '/songs').update({ list: _user.songs.list });
   };
 
   // Remove from list.
@@ -135,7 +141,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (found, i) {
       _user.songs.list.splice(i, 1);
-      // Action to Firebase to remove song.
+      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
     });
   };
 
@@ -145,7 +151,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = true;
-      // Update Firebase
+      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
     });
   };
 
@@ -155,7 +161,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = false;
-      // Update firebase
+      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
     });
   };
 
@@ -211,9 +217,17 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   u.includes = includes;
 
   u.login = function (credentials) {
-    auth.$authWithPassword(credentials, function (err, authData) {
-      if (err) return console.error('Login err: ', err);
-      console.log('data', authData);
+    auth.$authWithPassword(credentials).then(function (authData) {
+      _user.auth = {
+        token: authData.token,
+        uid: authData.uid,
+        provider: authData.provider
+      };
+
+      // Fetch songs from Firebase and load.
+      u.loadUser();
+    }).catch(function (err) {
+      console.error(err);
     });
   };
 
