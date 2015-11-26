@@ -1,0 +1,249 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/Cellar/node/4.2.1/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'request',
+1 verbose cli   'firebase',
+1 verbose cli   'querystring' ]
+2 info using npm@2.14.7
+3 info using node@v4.2.1
+4 verbose install initial load of /Users/bnlb/github/ionic_playground/kexp_server/package.json
+5 warn package.json kexp_server@1.0.0 No repository field.
+6 warn package.json kexp_server@1.0.0 No README data
+7 verbose installManyTop reading scoped package data from /Users/bnlb/github/ionic_playground/kexp_server/node_modules/cheerio/package.json
+8 verbose installManyTop reading scoped package data from /Users/bnlb/github/ionic_playground/kexp_server/node_modules/express/package.json
+9 verbose installManyTop reading scoped package data from /Users/bnlb/github/ionic_playground/kexp_server/node_modules/fetch/package.json
+10 verbose installManyTop reading scoped package data from /Users/bnlb/github/ionic_playground/kexp_server/node_modules/gulp/package.json
+11 info package.json fetch@0.3.6 No license field.
+12 verbose readDependencies loading dependencies from /Users/bnlb/github/ionic_playground/kexp_server/package.json
+13 silly cache add args [ 'request', null ]
+14 verbose cache add spec request
+15 silly cache add args [ 'firebase', null ]
+16 verbose cache add spec firebase
+17 silly cache add args [ 'querystring', null ]
+18 verbose cache add spec querystring
+19 silly cache add parsed spec Result {
+19 silly cache add   raw: 'request',
+19 silly cache add   scope: null,
+19 silly cache add   name: 'request',
+19 silly cache add   rawSpec: '',
+19 silly cache add   spec: '*',
+19 silly cache add   type: 'range' }
+20 silly addNamed request@*
+21 verbose addNamed "*" is a valid semver range for request
+22 silly addNameRange { name: 'request', range: '*', hasData: false }
+23 silly mapToRegistry name request
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry uri https://registry.npmjs.org/request
+27 verbose addNameRange registry:https://registry.npmjs.org/request not in flight; fetching
+28 silly cache add parsed spec Result {
+28 silly cache add   raw: 'firebase',
+28 silly cache add   scope: null,
+28 silly cache add   name: 'firebase',
+28 silly cache add   rawSpec: '',
+28 silly cache add   spec: '*',
+28 silly cache add   type: 'range' }
+29 silly addNamed firebase@*
+30 verbose addNamed "*" is a valid semver range for firebase
+31 silly addNameRange { name: 'firebase', range: '*', hasData: false }
+32 silly mapToRegistry name firebase
+33 silly mapToRegistry using default registry
+34 silly mapToRegistry registry https://registry.npmjs.org/
+35 silly mapToRegistry uri https://registry.npmjs.org/firebase
+36 verbose addNameRange registry:https://registry.npmjs.org/firebase not in flight; fetching
+37 silly cache add parsed spec Result {
+37 silly cache add   raw: 'querystring',
+37 silly cache add   scope: null,
+37 silly cache add   name: 'querystring',
+37 silly cache add   rawSpec: '',
+37 silly cache add   spec: '*',
+37 silly cache add   type: 'range' }
+38 silly addNamed querystring@*
+39 verbose addNamed "*" is a valid semver range for querystring
+40 silly addNameRange { name: 'querystring', range: '*', hasData: false }
+41 silly mapToRegistry name querystring
+42 silly mapToRegistry using default registry
+43 silly mapToRegistry registry https://registry.npmjs.org/
+44 silly mapToRegistry uri https://registry.npmjs.org/querystring
+45 verbose addNameRange registry:https://registry.npmjs.org/querystring not in flight; fetching
+46 verbose request uri https://registry.npmjs.org/firebase
+47 verbose request no auth needed
+48 info attempt registry request try #1 at 11:20:34 PM
+49 verbose request id 36f193860d52a0f6
+50 http request GET https://registry.npmjs.org/firebase
+51 verbose request uri https://registry.npmjs.org/request
+52 verbose request no auth needed
+53 info attempt registry request try #1 at 11:20:34 PM
+54 verbose etag "EL5RTBSPD8AOCXN4TRX19E67C"
+55 http request GET https://registry.npmjs.org/request
+56 verbose request uri https://registry.npmjs.org/querystring
+57 verbose request no auth needed
+58 info attempt registry request try #1 at 11:20:34 PM
+59 verbose etag "19E9FP8PPFCEPU8ZBVBU0CHYY"
+60 http request GET https://registry.npmjs.org/querystring
+61 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+62 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+63 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+64 info attempt registry request try #2 at 11:21:14 PM
+65 verbose etag "EL5RTBSPD8AOCXN4TRX19E67C"
+66 http request GET https://registry.npmjs.org/request
+67 info attempt registry request try #2 at 11:21:14 PM
+68 verbose etag "19E9FP8PPFCEPU8ZBVBU0CHYY"
+69 http request GET https://registry.npmjs.org/querystring
+70 info attempt registry request try #2 at 11:21:14 PM
+71 http request GET https://registry.npmjs.org/firebase
+72 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+73 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+74 info retry will retry, error on last attempt: Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+75 info attempt registry request try #3 at 11:22:44 PM
+76 verbose etag "19E9FP8PPFCEPU8ZBVBU0CHYY"
+77 http request GET https://registry.npmjs.org/querystring
+78 info attempt registry request try #3 at 11:22:44 PM
+79 verbose etag "EL5RTBSPD8AOCXN4TRX19E67C"
+80 http request GET https://registry.npmjs.org/request
+81 info attempt registry request try #3 at 11:22:44 PM
+82 http request GET https://registry.npmjs.org/firebase
+83 silly get cb [ 304, undefined ]
+84 verbose etag https://registry.npmjs.org/request from cache
+85 verbose get saving request to /Users/bnlb/.npm/registry.npmjs.org/request/.cache.json
+86 silly get cb [ 304, undefined ]
+87 verbose etag https://registry.npmjs.org/querystring from cache
+88 verbose get saving querystring to /Users/bnlb/.npm/registry.npmjs.org/querystring/.cache.json
+89 silly addNameRange number 2 { name: 'request', range: '*', hasData: true }
+90 silly addNameRange versions [ 'request',
+90 silly addNameRange   [ '0.10.0',
+90 silly addNameRange     '0.8.3',
+90 silly addNameRange     '0.9.0',
+90 silly addNameRange     '0.9.1',
+90 silly addNameRange     '0.9.5',
+90 silly addNameRange     '1.0.0',
+90 silly addNameRange     '1.1.0',
+90 silly addNameRange     '1.1.1',
+90 silly addNameRange     '1.2.0',
+90 silly addNameRange     '1.9.0',
+90 silly addNameRange     '1.9.1',
+90 silly addNameRange     '1.9.2',
+90 silly addNameRange     '1.9.3',
+90 silly addNameRange     '1.9.5',
+90 silly addNameRange     '1.9.7',
+90 silly addNameRange     '1.9.8',
+90 silly addNameRange     '1.9.9',
+90 silly addNameRange     '2.0.0',
+90 silly addNameRange     '2.0.1',
+90 silly addNameRange     '2.0.2',
+90 silly addNameRange     '2.0.3',
+90 silly addNameRange     '2.0.4',
+90 silly addNameRange     '2.0.5',
+90 silly addNameRange     '2.1.0',
+90 silly addNameRange     '2.1.1',
+90 silly addNameRange     '2.2.0',
+90 silly addNameRange     '2.2.5',
+90 silly addNameRange     '2.2.6',
+90 silly addNameRange     '2.2.9',
+90 silly addNameRange     '2.9.0',
+90 silly addNameRange     '2.9.1',
+90 silly addNameRange     '2.9.2',
+90 silly addNameRange     '2.9.3',
+90 silly addNameRange     '2.9.100',
+90 silly addNameRange     '2.9.150',
+90 silly addNameRange     '2.9.151',
+90 silly addNameRange     '2.9.152',
+90 silly addNameRange     '2.9.153',
+90 silly addNameRange     '2.9.200',
+90 silly addNameRange     '2.9.201',
+90 silly addNameRange     '2.9.202',
+90 silly addNameRange     '2.9.203',
+90 silly addNameRange     '2.10.0',
+90 silly addNameRange     '2.11.0',
+90 silly addNameRange     '2.11.1',
+90 silly addNameRange     '2.11.2',
+90 silly addNameRange     '2.11.3',
+90 silly addNameRange     '2.11.4',
+90 silly addNameRange     '2.12.0',
+90 silly addNameRange     '2.14.0',
+90 silly addNameRange     '2.16.0',
+90 silly addNameRange     '2.16.2',
+90 silly addNameRange     '2.16.4',
+90 silly addNameRange     '2.16.6',
+90 silly addNameRange     '2.18.0',
+90 silly addNameRange     '2.19.0',
+90 silly addNameRange     '2.20.0',
+90 silly addNameRange     '2.21.0',
+90 silly addNameRange     '2.22.0',
+90 silly addNameRange     '2.23.0',
+90 silly addNameRange     '2.24.0',
+90 silly addNameRange     '2.25.0',
+90 silly addNameRange     '2.26.0',
+90 silly addNameRange     '2.27.0',
+90 silly addNameRange     '2.28.0',
+90 silly addNameRange     '2.29.0',
+90 silly addNameRange     '2.30.0',
+90 silly addNameRange     '2.31.0',
+90 silly addNameRange     '2.32.0',
+90 silly addNameRange     '2.33.0',
+90 silly addNameRange     '2.34.0',
+90 silly addNameRange     '2.35.0',
+90 silly addNameRange     '2.36.0',
+90 silly addNameRange     '2.37.0',
+90 silly addNameRange     '2.38.0',
+90 silly addNameRange     '2.39.0',
+90 silly addNameRange     '2.40.0',
+90 silly addNameRange     '2.41.0',
+90 silly addNameRange     '2.42.0',
+90 silly addNameRange     '2.43.0',
+90 silly addNameRange     '2.44.0',
+90 silly addNameRange     '2.45.0',
+90 silly addNameRange     '2.46.0',
+90 silly addNameRange     '2.47.0',
+90 silly addNameRange     '2.48.0',
+90 silly addNameRange     '2.49.0',
+90 silly addNameRange     '2.50.0',
+90 silly addNameRange     '2.51.0',
+90 silly addNameRange     '2.52.0',
+90 silly addNameRange     '2.53.0',
+90 silly addNameRange     '2.54.0',
+90 silly addNameRange     '2.55.0',
+90 silly addNameRange     '2.56.0',
+90 silly addNameRange     '2.57.0',
+90 silly addNameRange     '2.58.0',
+90 silly addNameRange     '2.59.0',
+90 silly addNameRange     '2.60.0',
+90 silly addNameRange     '2.61.0',
+90 silly addNameRange     '2.62.0',
+90 silly addNameRange     '2.63.0',
+90 silly addNameRange     '2.64.0',
+90 silly addNameRange     '2.65.0',
+90 silly addNameRange     '2.66.0',
+90 silly addNameRange     '2.67.0' ] ]
+91 silly addNamed request@2.67.0
+92 verbose addNamed "2.67.0" is a plain semver version for request
+93 silly addNameRange number 2 { name: 'querystring', range: '*', hasData: true }
+94 silly addNameRange versions [ 'querystring', [ '0.0.1', '0.0.4', '0.1.0', '0.2.0' ] ]
+95 silly addNamed querystring@0.2.0
+96 verbose addNamed "0.2.0" is a plain semver version for querystring
+97 silly cache afterAdd request@2.67.0
+98 verbose afterAdd /Users/bnlb/.npm/request/2.67.0/package/package.json not in flight; writing
+99 verbose afterAdd /Users/bnlb/.npm/request/2.67.0/package/package.json written
+100 silly cache afterAdd querystring@0.2.0
+101 verbose afterAdd /Users/bnlb/.npm/querystring/0.2.0/package/package.json not in flight; writing
+102 verbose afterAdd /Users/bnlb/.npm/querystring/0.2.0/package/package.json written
+103 verbose stack Error: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+103 verbose stack     at errnoException (dns.js:26:10)
+103 verbose stack     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:77:26)
+104 verbose cwd /Users/bnlb/github/ionic_playground/kexp_server
+105 error Darwin 15.0.0
+106 error argv "/usr/local/Cellar/node/4.2.1/bin/node" "/usr/local/bin/npm" "install" "request" "firebase" "querystring"
+107 error node v4.2.1
+108 error npm  v2.14.7
+109 error code ENOTFOUND
+110 error errno ENOTFOUND
+111 error syscall getaddrinfo
+112 error network getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+112 error network This is most likely not a problem with npm itself
+112 error network and is related to network connectivity.
+112 error network In most cases you are behind a proxy or have bad network settings.
+112 error network
+112 error network If you are behind a proxy, please make sure that the
+112 error network 'proxy' config is set properly.  See: 'npm help config'
+113 verbose exit [ 1, true ]
