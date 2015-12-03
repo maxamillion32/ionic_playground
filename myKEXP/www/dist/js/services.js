@@ -258,4 +258,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   return u;
+})
+
+// Spotify
+.factory('Spotify', function ($localstorage, FIREBASE_URL, $firebaseAuth) {
+  // get playlist
+  // post to playlist
+  // remove from playlist
 });

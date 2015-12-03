@@ -2,7 +2,7 @@
   <ion-content>
     <div class="list card">
 
-      <div class="item item-image">
+      <div on-double-tap="addToFavorites(song)" class="item item-image">
         <img ng-src="{{song.LargeExtImage || 'img/default.jpg'}}">
       </div>
 
