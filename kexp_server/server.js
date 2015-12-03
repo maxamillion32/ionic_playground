@@ -16,7 +16,7 @@ var CLIENT_ID = process.env.SPOTIFY_CLIENT_ID,
 
 var redirect_uri = 'http://localhost:' + PORT + '/callback';
 
-// Currently playing JSON.
+// Return JSON of currently playing song.
 app.get('/', function(req, res) {
 
   request(KEXP_URL, function(err, res, body) {
@@ -35,8 +35,7 @@ app.get('/', function(req, res) {
 });
 
 
-// Spotify callback.
-// Takes auth code, trades it for tokens, and saves tokens to Firebase.
+// Spotify callback: uses auth code to get tokens and saves tokens to Firebase.
 app.get('/callback', function(req, res) {
 
   var code = req.query.code || null,

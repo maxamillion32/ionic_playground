@@ -13,7 +13,7 @@ Controller for the discover page
     });
   }
 
-  var hideLoading = funciton() {
+  var hideLoading = function() {
     $ionicLoading.hide();
   };
 
