@@ -8,6 +8,7 @@ angular.module('kexp', ['ionic', 'kexp.controllers']).run(function ($ionicPlatfo
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
       cordova.plugins.Keyboard.disableScroll(true);
     }
+
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
@@ -52,7 +53,19 @@ angular.module('kexp', ['ionic', 'kexp.controllers']).run(function ($ionicPlatfo
         controller: 'SongCtrl'
       }
     }
+  })
+
+  // Spotify authorization page.
+  .state('app.spotify', {
+    url: '/spotify',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/spotify.html',
+        controller: 'SpotifyCtrl'
+      }
+    }
   });
+
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/current');
 });

@@ -105,4 +105,15 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
   $scope.removeFromFavorites = function (song) {
     User.removeSongFromFavorites(song);
   };
+})
+
+// Spotify authorization.
+.controller('SpotifyCtrl', function ($scope, $stateParams, User, Spotify) {
+
+  var userId = User.getId();
+
+  // Authenticate with Spotify, then save tokens in localStorage and Firebase.
+  $scope.authenticate = function () {
+    Spotify.authenticate(userId).then(User.load);
+  };
 });

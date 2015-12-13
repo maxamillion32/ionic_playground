@@ -1,25 +1,23 @@
 var express = require('express'),
     request = require('request'),
     querystring = require('querystring'),
-    cookieParser = require('cookie-parser'),
     firebase = require('firebase'),
     cheerio = require('cheerio'),
     app = express();
 
-app.use(cookieParser());
-
-var PORT = process.env.PORT || 80,
+var PORT = process.env.PORT || 8000,
     KEXP_URL = 'http://kexp.org/playlist';
 
 var CLIENT_ID = process.env.SPOTIFY_CLIENT_ID,
     CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
-var redirect_uri = 'http://localhost:' + PORT + '/callback';
+var redirect_uri = 'http://localhost/callback';
+
 
 // Return JSON of currently playing song.
 app.get('/', function(req, res) {
 
-  request(KEXP_URL, function(err, res, body) {
+  request(KEXP_URL, function(err, request, body) {
     if (err) return res.json(err);
 
     var $ = cheerio.load(body.toString('utf8')),
@@ -35,47 +33,32 @@ app.get('/', function(req, res) {
 });
 
 
-// Spotify callback: uses auth code to get tokens and saves tokens to Firebase.
-app.get('/callback', function(req, res) {
+// Get access tokens from Spotify.
+app.get('/tokens', function(req, res) {
+  var url = 'https://accounts.spotify.com/api/token',
+      auth = new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
-  var code = req.query.code || null,
-      state = req.query.state;
-
-  var authOptions = {
+  var config = {
     url: 'https://accounts.spotify.com/api/token',
-    form: {
-      code: code,
-      redirect_uri: redirect_uri,
-      grant_type: 'authorization_code'
-    },
     headers: {
-      'Authorization': 'Basic ' + (new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+      'Authorization': 'Basic ' + auth
+    },
+    form: {
+      code: req.query.code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirect_uri
     },
     json: true
   };
 
-  // Trade in code for tokens.
-  request.post(authOptions, function(err, res, body) {
+  request.post(config, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-
-      var fb_url = 'https://mykexp.firebaseio.com/users/private/' + state.user;
-
-      var auth = {
-        access_token: body.access_token,
-        refresh_token: body.refresh_token
-      };
-
-      var ref = new firebase(fb_url);
-
-      // Save tokens to Firebase user object.
-      ref.set({spotify: auth}, function(err) {
-        if (err) return res.json(err);
-
-        return res.statusCode(200);
-      });
+      return res.send({ tokens: body });
     }
+    res.end();
   });
 });
+
 
 // Get new refresh token.
 app.get('/refresh_token', function(req, res) {
@@ -83,7 +66,7 @@ app.get('/refresh_token', function(req, res) {
   var refresh_token = req.query.refresh_token,
       auth = new Buffer(CLIENT_SECRET + ':' + CLIENT_SECRET).toString('base64');
 
-  var authOptions = {
+  var config = {
     url: 'https://accounts.spotify.com/api/token',
     headers: { 'Authorization': 'Basic ' + auth },
     form: {
@@ -93,7 +76,7 @@ app.get('/refresh_token', function(req, res) {
     json: true
   };
 
-  request.post(authOptions, function(error, response, body) {
+  request.post(config, function(error, response, body) {
     if (!error && response.statusCode === 200) {
 
       res.send({
@@ -102,6 +85,7 @@ app.get('/refresh_token', function(req, res) {
     }
   });
 });
+
 
 console.log('Server listening at %s...', PORT);
 app.listen(PORT);

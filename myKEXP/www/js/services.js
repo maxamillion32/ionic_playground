@@ -62,7 +62,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
   // User data
-  .factory('User', ($localstorage, FIREBASE_URL, $helpers, $firebaseAuth) => {
+  .factory('User', ($localstorage, FIREBASE_URL, $helpers, $firebaseAuth, $http) => {
 
     let { getBlankUser, includes } = $helpers;
 
@@ -91,12 +91,9 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Load user info from Firebase using uid.
-    u.loadUser = () => {
+    u.load = () => {
       userRefs.private.child(_user.auth.uid).on('value', (data) => {
-        let user = data.val();
-
-        _user.email = user.email;
-        _user.songs = user.songs;
+        _user = data.val();
 
         $localstorage.setObject('user', _user);
       });
@@ -217,6 +214,13 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     u.includes = includes;
 
 
+    // Return id of current user.
+    u.getId = () => {
+      return _user.auth.uid;
+    };
+
+
+    // Login and load user.
     u.login = (credentials) => {
       auth.$authWithPassword(credentials)
           .then((authData) => {
@@ -227,7 +231,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
             }
 
             // Fetch songs from Firebase and load.
-            u.loadUser();
+            u.load();
           })
           .catch((err) => {
             console.error(err);
@@ -238,6 +242,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     u.logout = auth.$unauth;
 
 
+    // Create account in Firebase.
     u.signup = (credentials) => {
       auth.$createUser(credentials)
           .then((userData) => {
@@ -268,8 +273,79 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
   })
 
   // Spotify
-  .factory('Spotify', ($localstorage, FIREBASE_URL, $firebaseAuth) => {
-    // get playlist
-    // post to playlist
-    // remove from playlist
+  .factory('Spotify', ($window, FIREBASE_URL, $q, $http) => {
+
+    let s = {};
+
+    let redirect_uri = 'http://localhost/callback';
+    let CLIENT_ID = '05f018422a7f4c6f9820f782e55dd398';
+
+    let ref = new Firebase(FIREBASE_URL);
+
+    let userRefs = {
+      private: ref.child(`users/private`),
+      public: ref.child(`users/public`)
+    };
+
+
+    // Authenticate with Spotify.
+    let auth = (userId) => {
+      let scope = 'playlist-modify-public';
+
+      let url = 'https://accounts.spotify.com/authorize' +
+                '?response_type=code' +
+                '&client_id=' + CLIENT_ID +
+                '&scope=' + encodeURIComponent(scope) +
+                '&redirect_uri=' + encodeURIComponent(redirect_uri);
+
+      return $q((resolve, reject) => {
+        let _ref = cordova.InAppBrowser.open(url, '_blank', 'location=no');
+
+
+        _ref.addEventListener('loadstart', (e) => {
+          let url = e.url,
+              code = /\?code=(.+)$/.exec(url);
+
+          if (code) {
+            if ((url).includes('error')) return reject();
+            let requestToken = code[1];
+            _ref.close();
+            resolve(requestToken, userId);
+          }
+        });
+      });
+    };
+
+
+    // Get tokens from Spotify.
+    let getTokens = (requestToken, userId) => {
+      let url = 'http://kexp.lyleblack.com/tokens',
+          params = { code: requestToken };
+
+      return $http.get(url, { params });
+    };
+
+
+    // Store tokens in Firebase.
+    let storeTokens = (res, userId) => {
+      userRefs.private.child(`${userId}/spotify`).set({tokens: res.data.tokens});
+
+      return $q((resolve, reject) => {
+        if (res.status === 200) {
+          resolve(res.data.tokens);
+        }
+        reject();
+      });
+    };
+
+
+    // Exposed method.
+    s.authenticate = (userId) => {
+      return auth(userId).then(getTokens)
+                   .then((res) => {
+                     return storeTokens(res, userId);
+                   });
+    };
+
+    return s;
   });
