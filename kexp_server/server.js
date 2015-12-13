@@ -5,7 +5,7 @@ var express = require('express'),
     cheerio = require('cheerio'),
     app = express();
 
-var PORT = process.env.PORT || 8000,
+var PORT = process.env.PORT || 80,
     KEXP_URL = 'http://kexp.org/playlist';
 
 var CLIENT_ID = process.env.SPOTIFY_CLIENT_ID,

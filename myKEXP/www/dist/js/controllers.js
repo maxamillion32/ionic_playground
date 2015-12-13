@@ -114,6 +114,6 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
 
   // Authenticate with Spotify, then save tokens in localStorage and Firebase.
   $scope.authenticate = function () {
-    Spotify.authenticate(userId).then(User.load);
+    Spotify.authenticate(userId).then(User.load).then(User.save);
   };
 });

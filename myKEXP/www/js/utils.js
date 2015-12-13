@@ -47,7 +47,8 @@ angular.module('kexp.utils', [])
           uid: null,
           provider: null,
           token: null
-        }
+        },
+        spotify: null
       };
     }
 

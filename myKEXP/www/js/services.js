@@ -91,12 +91,29 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Load user info from Firebase using uid.
+    // Update Firebase with songs that were fetched before login.
     u.load = () => {
-      userRefs.private.child(_user.auth.uid).on('value', (data) => {
-        _user = data.val();
+      return new Promise((resolve, reject) => {
+        userRefs.private.child(_user.auth.uid).on('value', (data) => {
 
-        $localstorage.setObject('user', _user);
+          // Get new user info.
+          let user = data.val();
+
+          // Add songs fetched before login to beginning of list.
+          let list = [..._user.songs.list, ...user.songs.list]
+
+          _user = user;
+          _user.songs.list = list;
+          resolve();
+        });
       });
+    };
+
+
+    // Update localStorage/Firebase.
+    u.save = {
+      $localstorage.setObject('user', _user);
+      userRefs.private.set({ [uid]: _user });
     };
 
 
@@ -138,8 +155,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         _user.songs.list.unshift(song);
       }
 
-      userRefs.private.child(`${_user.auth.uid}/songs`)
-                      .update({list: _user.songs.list});
+      // Update Firebase if logged in.
+      if (u.isLoggedIn()) {
+        userRefs.private.child(`${_user.auth.uid}/songs`)
+                        .update({list: _user.songs.list});
+      }
     };
 
 
@@ -149,8 +169,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (found, i) => {
         _user.songs.list.splice(i, 1);
-        userRefs.private.child(`${_user.auth.uid}/songs`)
-                        .set({list: _user.songs.list});
+
+        // Update Firebase if logged in.
+        if (u.isLoggedIn()) {
+          userRefs.private.child(`${_user.auth.uid}/songs`)
+                          .set({list: _user.songs.list});
+        }
       });
     };
 
@@ -161,8 +185,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = true;
-        userRefs.private.child(`${_user.auth.uid}/songs`)
-                        .set({list: _user.songs.list});
+
+        // Update Firebase if logged in.
+        if (u.isLoggedIn()) {
+          userRefs.private.child(`${_user.auth.uid}/songs`)
+                          .set({list: _user.songs.list});
+        }
       });
     };
 
@@ -173,8 +201,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = false;
-        userRefs.private.child(`${_user.auth.uid}/songs`)
-                        .set({list: _user.songs.list});
+
+        // Update Firebase if logged in.
+        if (u.isLoggedIn()) {
+          userRefs.private.child(`${_user.auth.uid}/songs`)
+                          .set({list: _user.songs.list});
+        }
       });
     };
 
@@ -230,8 +262,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
               provider: authData.provider
             }
 
-            // Fetch songs from Firebase and load.
-            u.load();
+            // Get songs, add any that were fetched before login, then save.
+            u.load().then(u.save);
           })
           .catch((err) => {
             console.error(err);
@@ -259,13 +291,16 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
             };
 
             // Store private/public user data.
-            userRefs.public.set({ [uid]: _user });
-            userRefs.private.set({ [uid]: _user });
+            u.save();
 
-            console.log('Logged in as: ', _user);
           }).catch((err) => {
             console.error(`Error while authenticating: ${err}`);
           });
+    };
+
+
+    u.isLoggedIn = () => {
+      return !!_user.auth.uid;
     };
 
     return u;
@@ -339,13 +374,16 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     };
 
 
-    // Exposed method.
+    // Load & save tokens.
     s.authenticate = (userId) => {
       return auth(userId).then(getTokens)
-                   .then((res) => {
-                     return storeTokens(res, userId);
-                   });
+                         .then((res) => {
+                           return storeTokens(res, userId);
+                         });
     };
+
+
+
 
     return s;
   });

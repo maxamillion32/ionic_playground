@@ -2,6 +2,8 @@
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_URL', 'https://mykexp.firebaseio.com/')
 
 // Song currently playing on KEXP.
@@ -86,11 +88,23 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   // Load user info from Firebase using uid.
+  // Update Firebase with songs that were fetched before login.
   u.load = function () {
     userRefs.private.child(_user.auth.uid).on('value', function (data) {
-      _user = data.val();
 
+      // Get new user info.
+      var user = data.val();
+
+      // Add songs fetched before login to beginning of list.
+      var list = [].concat(_toConsumableArray(_user.songs.list), _toConsumableArray(user.songs.list));
+
+      _user = user;
+      _user.songs.list = list;
+
+      // Update localStorage/Firebase with user
       $localstorage.setObject('user', _user);
+      userRefs.public.set(_defineProperty({}, uid, _user));
+      userRefs.private.set(_defineProperty({}, uid, _user));
     });
   };
 
@@ -129,7 +143,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       _user.songs.list.unshift(song);
     }
 
-    userRefs.private.child(_user.auth.uid + '/songs').update({ list: _user.songs.list });
+    // Update Firebase if logged in.
+    if (undefined.isLoggedIn()) {
+      userRefs.private.child(_user.auth.uid + '/songs').update({ list: _user.songs.list });
+    }
   };
 
   // Remove from list.
@@ -138,7 +155,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (found, i) {
       _user.songs.list.splice(i, 1);
-      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+
+      // Update Firebase if logged in.
+      if (undefined.isLoggedIn()) {
+        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+      }
     });
   };
 
@@ -148,7 +169,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = true;
-      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+
+      // Update Firebase if logged in.
+      if (undefined.isLoggedIn()) {
+        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+      }
     });
   };
 
@@ -158,7 +183,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = false;
-      userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+
+      // Update Firebase if logged in.
+      if (undefined.isLoggedIn()) {
+        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
+      }
     });
   };
 
@@ -259,6 +288,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     }).catch(function (err) {
       console.error('Error while authenticating: ' + err);
     });
+  };
+
+  u.isLoggedIn = function () {
+    return !!_user.auth.uid;
   };
 
   return u;

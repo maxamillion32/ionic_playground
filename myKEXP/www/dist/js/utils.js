@@ -70,7 +70,8 @@ angular.module('kexp.utils', []).factory('$localstorage', ['$window', function (
         uid: null,
         provider: null,
         token: null
-      }
+      },
+      spotify: null
     };
   }
 
