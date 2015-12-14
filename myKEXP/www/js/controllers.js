@@ -1,6 +1,6 @@
 angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, User) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, User, Spotify) {
 
 
   // Form data for the login modal
@@ -28,7 +28,10 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
     if (signingUp) {
       User.signup(loginData);
     } else {
-      User.login(loginData);
+      User.login(loginData)
+          .then((user) => {
+            if (user.spotify) Spotify.refreshTokens(user);
+          }
     }
     $scope.closeLogin();
   };
@@ -115,12 +118,10 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 // Spotify authorization.
 .controller('SpotifyCtrl', function($scope, $stateParams, User, Spotify) {
 
-  let userId = User.getId();
+  let user = User.getUser();
 
   // Authenticate with Spotify, then save tokens in localStorage and Firebase.
   $scope.authenticate = () => {
-    Spotify.authenticate(userId)
-             .then(User.load)
-             .then(User.save);
+    Spotify.authenticate(user).then(User.save);
   };
 });

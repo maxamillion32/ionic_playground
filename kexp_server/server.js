@@ -55,13 +55,13 @@ app.get('/tokens', function(req, res) {
     if (!error && response.statusCode === 200) {
       return res.send({ tokens: body });
     }
-    res.end();
+    res.status(response.statusCode).json(error);
   });
 });
 
 
 // Get new refresh token.
-app.get('/refresh_token', function(req, res) {
+app.get('/refresh', function(req, res) {
 
   var refresh_token = req.query.refresh_token,
       auth = new Buffer(CLIENT_SECRET + ':' + CLIENT_SECRET).toString('base64');
@@ -78,11 +78,9 @@ app.get('/refresh_token', function(req, res) {
 
   request.post(config, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-
-      res.send({
-        'access_token': body.access_token
-      });
+      return res.send({ tokens: body });
     }
+    res.status(response.statusCode).json(error);
   });
 });
 
