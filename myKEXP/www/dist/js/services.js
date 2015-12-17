@@ -80,32 +80,39 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   // Object to return.
   var u = {};
 
-  // Set user information in memory and in localhost.
+  // Set user information in memory.
   u.setSession = function (user) {
     _user = user;
-
-    $localstorage.setObject('user', _user);
   };
 
   // Load user info from Firebase using uid.
-  // Update Firebase with songs that were fetched before login.
+  // Update songs list with songs that were fetched before login.
   u.load = function () {
-    userRefs.private.child(_user.auth.uid).on('value', function (data) {
+    return new Promise(function (resolve, reject) {
+      userRefs.private.child(_user.auth.uid).on('value', function (data) {
 
-      // Get new user info.
-      var user = data.val();
+        // Get new user info.
+        var user = data.val();
 
-      // Add songs fetched before login to beginning of list.
-      var list = [].concat(_toConsumableArray(_user.songs.list), _toConsumableArray(user.songs.list));
+        // Add songs fetched before login to beginning of list.
+        var list = [].concat(_toConsumableArray(_user.songs.list), _toConsumableArray(user.songs.list));
 
-      _user = user;
-      _user.songs.list = list;
-
-      // Update localStorage/Firebase with user
-      $localstorage.setObject('user', _user);
-      userRefs.public.set(_defineProperty({}, uid, _user));
-      userRefs.private.set(_defineProperty({}, uid, _user));
+        _user = user;
+        _user.songs.list = list;
+        resolve(_user);
+      });
     });
+  };
+
+  // Update localStorage/Firebase.
+  u.save = function () {
+    $localstorage.setObject('user', _user);
+
+    if (u.isLoggedIn()) {
+      userRefs.private.set(_defineProperty({}, _user.auth.uid, _user));
+    }
+
+    return Promise.resolve(_user);
   };
 
   // True if user existing or in localhost.
@@ -115,10 +122,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       if (_user.uid) {
         resolve(true);
       } else {
-        var user = $localstorage.getObject('user');
+        var _user2 = $localstorage.getObject('user');
 
-        if (user.uid) {
-          u.setSession(user);
+        if (_user2.uid) {
+          u.setSession(_user2);
           u.fetchSongs().then(function () {
             resolve(true);
           });
@@ -141,11 +148,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     // Only add song if not already in queue.
     if (!includes(_user.songs.list, song)) {
       _user.songs.list.unshift(song);
-    }
-
-    // Update Firebase if logged in.
-    if (undefined.isLoggedIn()) {
-      userRefs.private.child(_user.auth.uid + '/songs').update({ list: _user.songs.list });
+      u.save();
     }
   };
 
@@ -155,11 +158,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (found, i) {
       _user.songs.list.splice(i, 1);
-
-      // Update Firebase if logged in.
-      if (undefined.isLoggedIn()) {
-        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
-      }
+      u.save();
     });
   };
 
@@ -169,11 +168,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = true;
-
-      // Update Firebase if logged in.
-      if (undefined.isLoggedIn()) {
-        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
-      }
+      u.save();
     });
   };
 
@@ -183,11 +178,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return includes(_user.songs.list, song, function (s) {
       s.favorite = false;
-
-      // Update Firebase if logged in.
-      if (undefined.isLoggedIn()) {
-        userRefs.private.child(_user.auth.uid + '/songs').set({ list: _user.songs.list });
-      }
+      u.save();
     });
   };
 
@@ -249,17 +240,23 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Login and load user.
   u.login = function (credentials) {
-    auth.$authWithPassword(credentials).then(function (authData) {
-      _user.auth = {
-        token: authData.token,
-        uid: authData.uid,
-        provider: authData.provider
-      };
 
-      // Fetch songs from Firebase and load.
-      u.load();
-    }).catch(function (err) {
-      console.error(err);
+    return new Promise(function (resolve, reject) {
+      auth.$authWithPassword(credentials).then(function (authData) {
+        _user.auth = {
+          token: authData.token,
+          uid: authData.uid,
+          provider: authData.provider
+        };
+
+        // Get songs, add any that were fetched before login, then save.
+        return u.load().then(u.save).then(function (user) {
+          resolve(user);
+        });
+      }).catch(function (err) {
+        console.error(err);
+        reject(err);
+      });
     });
   };
 
@@ -281,10 +278,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       };
 
       // Store private/public user data.
-      userRefs.public.set(_defineProperty({}, uid, _user));
-      userRefs.private.set(_defineProperty({}, uid, _user));
-
-      console.log('Logged in as: ', _user);
+      u.save();
     }).catch(function (err) {
       console.error('Error while authenticating: ' + err);
     });
@@ -292,6 +286,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   u.isLoggedIn = function () {
     return !!_user.auth.uid;
+  };
+
+  // Return a copy of the user object.
+  u.getUser = function () {
+    return Object.assign({}, _user);
   };
 
   return u;
@@ -313,7 +312,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   // Authenticate with Spotify.
-  var auth = function auth(userId) {
+  var auth = function auth() {
     var scope = 'playlist-modify-public';
 
     var url = 'https://accounts.spotify.com/authorize' + '?response_type=code' + '&client_id=' + CLIENT_ID + '&scope=' + encodeURIComponent(scope) + '&redirect_uri=' + encodeURIComponent(redirect_uri);
@@ -329,37 +328,241 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
           if (url.includes('error')) return reject();
           var requestToken = code[1];
           _ref.close();
-          resolve(requestToken, userId);
+          resolve(requestToken);
         }
       });
     });
   };
 
   // Get tokens from Spotify.
-  var getTokens = function getTokens(requestToken, userId) {
+  var getTokens = function getTokens(requestToken) {
     var url = 'http://kexp.lyleblack.com/tokens',
         params = { code: requestToken };
+
+    return new Promise(function (resolve, reject) {
+      $http.get(url, { params: params }).then(function (res) {
+        resolve(res.data.tokens);
+      }).catch(function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  // Get refresh tokens.
+  var refresh = function refresh(refresh_token) {
+    var url = 'http://kexp.lyleblack.com/refresh',
+        params = { refresh_token: refresh_token };
 
     return $http.get(url, { params: params });
   };
 
-  // Store tokens in Firebase.
-  var storeTokens = function storeTokens(res, userId) {
-    userRefs.private.child(userId + '/spotify').set({ tokens: res.data.tokens });
+  // Store tokens on user object.
+  var storeTokens = function storeTokens(tokens, user) {
+    user.spotify.tokens = tokens;
+    return Promise.resolve(user);
+  };
 
-    return $q(function (resolve, reject) {
-      if (res.status === 200) {
-        resolve(res.data.tokens);
+  // Find playlist with given name in given list of playlists.
+  var findPlaylist = function findPlaylist(playlists, name) {
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+      for (var _iterator2 = playlists[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        var playlist = _step2.value;
+
+        if (playlist.name === name) return playlist;
       }
-      reject();
+    } catch (err) {
+      _didIteratorError2 = true;
+      _iteratorError2 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+          _iterator2.return();
+        }
+      } finally {
+        if (_didIteratorError2) {
+          throw _iteratorError2;
+        }
+      }
+    }
+
+    return false;
+  };
+
+  // Return uri and method of requested endpoint.
+  var getEndpoint = function getEndpoint(user_id, playlist_id) {
+    var url = 'https://api.spotify.com/v1';
+
+    return {
+      getUser: {
+        url: 'https://api.spotify.com/v1/me',
+        method: 'GET'
+      },
+      getPlaylists: {
+        url: url + '/me/playlists',
+        method: 'GET'
+      },
+      createPlaylist: {
+        url: url + '/users/' + user_id + '/playlists',
+        method: 'POST'
+      },
+      addToPlaylist: {
+        url: url + '/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+        method: 'POST'
+      },
+      removeFromPlaylist: {
+        url: url + '/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+        method: 'DELETE'
+      }
+    };
+  };
+
+  // Load tokens and then save on user object.
+  s.authenticate = function (user) {
+    return auth().then(getTokens).then(function (tokens) {
+      return storeTokens(tokens, user);
+    }).catch(function (err) {
+      console.error(err);
     });
   };
 
-  // Exposed method.
-  s.authenticate = function (userId) {
-    return auth(userId).then(getTokens).then(function (res) {
-      return storeTokens(res, userId);
+  // Load refresh tokens and save on user object.
+  s.refreshTokens = function (user) {
+    return refresh(user.spotify.request_token).then(function (res) {
+      return storeTokens(res, user);
     });
+  };
+
+  // Search for song.
+  s.searchForTrack = function (song) {}
+  // Pull out track name, artist name, album name.
+  // Construct query.
+  // Fire off query.
+  // Return first result or ...?
+
+  // Get user Spotify info.
+  ;s.getUser = function () {
+    var _getEndpoint$getUser = getEndpoint().getUser;
+    var url = _getEndpoint$getUser.url;
+    var method = _getEndpoint$getUser.method;
+
+    return new Promise(function (resolve, reject) {
+
+      var config = {
+        url: url,
+        method: method,
+        headers: {
+          Authorization: 'Bearer ' + user.spotify.access_token
+        }
+      };
+
+      $http(config).then(function (res) {
+        resolve(res.data);
+      }, function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  // Return user's playlists.
+  s.getUserPlaylists = function (user) {
+    var access_token = user.spotify.tokens.access_token;
+    var _getEndpoint$getPlayl = getEndpoint().getPlaylists;
+    var url = _getEndpoint$getPlayl.url;
+    var method = _getEndpoint$getPlayl.method;
+
+    return new Promise(function (resolve, reject) {
+
+      var config = {
+        url: url,
+        method: method,
+        headers: {
+          Authorization: 'Bearer ' + access_token
+        }
+      };
+
+      $http(config).then(function (res) {
+        resolve(res.data);
+      }, function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  // Create playlist with given name.
+  s.createPlaylist = function (name, user) {
+    var _user$spotify = user.spotify;
+    var id = _user$spotify.user.id;
+    var access_token = _user$spotify.tokens.access_token;
+    var _getEndpoint$createPl = getEndpoint(id).createPlaylist;
+    var uri = _getEndpoint$createPl.uri;
+    var method = _getEndpoint$createPl.method;
+
+    var config = {
+      url: url,
+      method: method,
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        name: 'myKEXP',
+        'public': true
+      }
+    };
+
+    return $http(config);
+  };
+
+  // Add song to playlist.
+  s.addToPlaylist = function (user, trackId, playlistId) {
+    var _user$spotify2 = user.spotify;
+    var id = _user$spotify2.user.id;
+    var access_token = _user$spotify2.tokens.access_token;
+    var _getEndpoint$addToPla = getEndpoint(id, playlistId).addToPlaylist;
+    var uri = _getEndpoint$addToPla.uri;
+    var method = _getEndpoint$addToPla.method;
+
+    var config = {
+      url: url,
+      method: method,
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        uris: ['spotify:track:' + trackId]
+      }
+    };
+
+    return $http(config);
+  };
+
+  // Remove song from playlist
+  s.removeFromPlaylist = function (user, trackId, playlistId) {
+    var _user$spotify3 = user.spotify;
+    var id = _user$spotify3.user.id;
+    var access_token = _user$spotify3.tokens.access_token;
+    var _getEndpoint$removeFr = getEndpoint(id, playlistId).removeFromPlaylist;
+    var uri = _getEndpoint$removeFr.uri;
+    var method = _getEndpoint$removeFr.method;
+
+    var config = {
+      url: url,
+      method: method,
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        tracks: [{ uri: 'spotify:track:' + trackId }]
+      }
+    };
+
+    return $http(config);
   };
 
   return s;

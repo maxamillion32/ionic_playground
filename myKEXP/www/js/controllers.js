@@ -31,7 +31,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       User.login(loginData)
           .then((user) => {
             if (user.spotify) Spotify.refreshTokens(user);
-          }
+          });
     }
     $scope.closeLogin();
   };

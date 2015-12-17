@@ -102,31 +102,20 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
           _user = user;
           _user.songs.list = list;
-          resolve();
+          resolve(_user);
         });
       });
     };
 
 
-    /*
-    User starts using service without logging in:
-      - Songs are fetched, favorited, added to _user object.
-      - User logs in, adds songs are merged with users current songs.
-
-    User decides to auth with Spotify:
-      - Auth tokens are retreived and stored in firebase.
-      - Why not just add to user object and then call save?
-
-
-
-
-    */
-
-
     // Update localStorage/Firebase.
-    u.save = {
+    u.save = () => {
       $localstorage.setObject('user', _user);
-      userRefs.private.set({ [_user.auth.uid]: _user });
+
+      if (u.isLoggedIn()) {
+        userRefs.private.set({ [_user.auth.uid]: _user });
+      }
+
       return Promise.resolve(_user);
     };
 
@@ -167,13 +156,9 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       // Only add song if not already in queue.
       if (!includes(_user.songs.list, song)) {
         _user.songs.list.unshift(song);
+        u.save();
       }
 
-      // Update Firebase if logged in.
-      if (u.isLoggedIn()) {
-        userRefs.private.child(`${_user.auth.uid}/songs`)
-                        .update({list: _user.songs.list});
-      }
     };
 
 
@@ -183,12 +168,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (found, i) => {
         _user.songs.list.splice(i, 1);
-
-        // Update Firebase if logged in.
-        if (u.isLoggedIn()) {
-          userRefs.private.child(`${_user.auth.uid}/songs`)
-                          .set({list: _user.songs.list});
-        }
+        u.save();
       });
     };
 
@@ -199,12 +179,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = true;
-
-        // Update Firebase if logged in.
-        if (u.isLoggedIn()) {
-          userRefs.private.child(`${_user.auth.uid}/songs`)
-                          .set({list: _user.songs.list});
-        }
+        u.save();
       });
     };
 
@@ -215,12 +190,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return includes(_user.songs.list, song, (s) => {
         s.favorite = false;
-
-        // Update Firebase if logged in.
-        if (u.isLoggedIn()) {
-          userRefs.private.child(`${_user.auth.uid}/songs`)
-                          .set({list: _user.songs.list});
-        }
+        u.save();
       });
     };
 
@@ -386,7 +356,15 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       let url = 'http://kexp.lyleblack.com/tokens',
           params = { code: requestToken };
 
-      return $http.get(url, { params });
+      return new Promise((resolve, reject) => {
+        $http.get(url, { params })
+             .then((res) => {
+               resolve(res.data.tokens);
+             })
+             .catch((err) => {
+               reject(err);
+             });
+        });
     };
 
 
@@ -400,15 +378,9 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Store tokens on user object.
-    let storeTokens = (res, user) => {
-      user.spotify.tokens = res.data.tokens;
-
-      return $q((resolve, reject) => {
-        if (res.status === 200) {
-          resolve(user);
-        }
-        reject();
-      });
+    let storeTokens = (tokens, user) => {
+      user.spotify.tokens = tokens;
+      return Promise.resolve(user);
     };
 
 
@@ -453,8 +425,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     // Load tokens and then save on user object.
     s.authenticate = (user) => {
       return auth().then(getTokens)
-                   .then((res) => {
-                     return storeTokens(res, user);
+                   .then((tokens) => {
+                     return storeTokens(tokens, user);
+                   })
+                   .catch((err) => {
+                     console.error(err);
                    });
     };
 
@@ -468,7 +443,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Search for song.
-    s.searchForTrack =(song) => {
+    s.searchForTrack = (song) => {
       // Pull out track name, artist name, album name.
       // Construct query.
       // Fire off query.
@@ -500,7 +475,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Return user's playlists.
-    s.getUserPlaylists(user) {
+    s.getUserPlaylists = (user) => {
       let { tokens: { access_token } } = user.spotify;
       let { url, method } = getEndpoint().getPlaylists;
 
@@ -524,7 +499,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Create playlist with given name.
-    s.createPlaylist(name, user) {
+    s.createPlaylist = (name, user) => {
       let { user: { id }, tokens: { access_token } } = user.spotify;
       let { uri, method } = getEndpoint(id).createPlaylist;
 
@@ -546,7 +521,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Add song to playlist.
-    s.addToPlaylist(user, trackId, playlistId) {
+    s.addToPlaylist = (user, trackId, playlistId) => {
       let { user: { id }, tokens: { access_token } } = user.spotify;
       let { uri, method } = getEndpoint(id, playlistId).addToPlaylist;
 
@@ -567,7 +542,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Remove song from playlist
-    s.removeFromPlaylist(user, trackId, playlistId) {
+    s.removeFromPlaylist = (user, trackId, playlistId) => {
       let { user: { id }, tokens: { access_token } } = user.spotify;
       let { uri, method } = getEndpoint(id, playlistId).removeFromPlaylist;
 
