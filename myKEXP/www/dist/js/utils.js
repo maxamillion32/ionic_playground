@@ -5,16 +5,16 @@ var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = 
 angular.module('kexp.utils', []).factory('$localstorage', ['$window', function ($window) {
   return {
     set: function set(key, val) {
-      $window.localStorage[key] = value;
+      $window.localStorage.setItem(key, value);
     },
     get: function get(key, defaultVal) {
-      return $window.localStorage[key] || defaultVal;
+      return $window.localStorage.getItem(key) || defaultVal;
     },
     setObject: function setObject(key, val) {
-      $window.localStorage[key] = JSON.stringify(val);
+      $window.localStorage.setItem(key, JSON.stringify(val));
     },
     getObject: function getObject(key) {
-      return JSON.parse($window.localStorage[key] || '{}');
+      return JSON.parse($window.localStorage.getItem(key) || '{}');
     }
   };
 }]).factory('$helpers', [function () {

@@ -90,15 +90,18 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Load user info from Firebase using uid.
     // Update songs list with songs that were fetched before login.
-    u.load = () => {
+    u.load = (isLogginIn) => {
+
       return new Promise((resolve, reject) => {
         userRefs.private.child(_user.auth.uid).on('value', (data) => {
 
           // Get new user info.
           let user = data.val();
 
-          // Add songs fetched before login to beginning of list.
-          let list = [..._user.songs.list, ...user.songs.list]
+          // If logging in, add songs fetched before login to beginning of list.
+          let list = isLogginIn ?
+                     [..._user.songs.list, ...user.songs.list] :
+                     _user.songs.list
 
           _user = user;
           _user.songs.list = list;
@@ -249,7 +252,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
               }
 
               // Get songs, add any that were fetched before login, then save.
-              return u.load()
+              return u.load(true)
                       .then(u.save)
                       .then((user) => {
                         resolve(user);
