@@ -75,7 +75,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   // User object.
-  var _user = $helpers.getBlankUser();
+  var _user = $localstorage.getObject('user') || $helpers.getBlankUser();
 
   // Object to return.
   var u = {};
@@ -125,11 +125,9 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       } else {
         var _user2 = $localstorage.getObject('user');
 
-        if (_user2.uid) {
+        if (_user2 && _user2.uid) {
           u.setSession(_user2);
-          u.fetchSongs().then(function () {
-            resolve(true);
-          });
+          resolve(true);
         }
       }
 
@@ -185,6 +183,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Return all songs user has fetched.
   u.getFetched = function () {
+    console.log('_user', _user);
     return _user.songs.list;
   };
 

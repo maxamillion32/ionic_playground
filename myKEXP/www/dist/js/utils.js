@@ -14,7 +14,7 @@ angular.module('kexp.utils', []).factory('$localstorage', ['$window', function (
       $window.localStorage.setItem(key, JSON.stringify(val));
     },
     getObject: function getObject(key) {
-      return JSON.parse($window.localStorage.getItem(key) || '{}');
+      return JSON.parse($window.localStorage.getItem(key));
     }
   };
 }]).factory('$helpers', [function () {

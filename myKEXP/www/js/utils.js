@@ -12,7 +12,7 @@ angular.module('kexp.utils', [])
         $window.localStorage.setItem(key, JSON.stringify(val));
       },
       getObject: function(key) {
-        return JSON.parse($window.localStorage.getItem(key) || '{}');
+        return JSON.parse($window.localStorage.getItem(key));
       }
     };
   }])
