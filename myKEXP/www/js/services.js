@@ -89,7 +89,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Load user info from Firebase using uid.
     // Update songs list with songs that were fetched before login.
-    u.load = (isLogginIn) => {
+    u.load = () => {
 
       return new Promise((resolve, reject) => {
         userRefs.private.child(_user.auth.uid).on('value', (data) => {
@@ -97,13 +97,15 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
           // Get new user info.
           let user = data.val();
 
-          // If logging in, add songs fetched before login to beginning of list.
-          let list = isLogginIn ?
+          // If user was initially loaded as guest (empty localStorage) then
+          // add songs that were fetched before login to beginning of list.
+          let list = _user.isGuestUser ?
                      [..._user.songs.list, ...user.songs.list] :
-                     _user.songs.list
+                     _user.songs.list;
 
           _user = user;
           _user.songs.list = list;
+          _user.isGuestUser = false;
           resolve(_user);
         });
       });
@@ -197,7 +199,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Return all songs user has fetched.
     u.getFetched = () => {
-      console.log('_user', _user);
       return _user.songs.list;
     };
 
@@ -250,7 +251,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
               }
 
               // Get songs, add any that were fetched before login, then save.
-              return u.load(true)
+              return u.load()
                       .then(u.save)
                       .then((user) => {
                         resolve(user);
@@ -477,7 +478,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Return user's playlists.
     s.getUserPlaylists = (user) => {
-      let { tokens: { access_token } } = user.spotify;
+      let { tokens: { access_token }} = user.spotify;
       let { url, method } = getEndpoint().getPlaylists;
 
       return new Promise((resolve, reject) => {
@@ -501,7 +502,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Create playlist with given name.
     s.createPlaylist = (name, user) => {
-      let { user: { id }, tokens: { access_token } } = user.spotify;
+      let { user: { id }, tokens: { access_token }} = user.spotify;
       let { uri, method } = getEndpoint(id).createPlaylist;
 
       let config = {
@@ -523,7 +524,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Add song to playlist.
     s.addToPlaylist = (user, trackId, playlistId) => {
-      let { user: { id }, tokens: { access_token } } = user.spotify;
+      let { user: { id }, tokens: { access_token }} = user.spotify;
       let { uri, method } = getEndpoint(id, playlistId).addToPlaylist;
 
       let config = {
@@ -544,7 +545,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Remove song from playlist
     s.removeFromPlaylist = (user, trackId, playlistId) => {
-      let { user: { id }, tokens: { access_token } } = user.spotify;
+      let { user: { id }, tokens: { access_token }} = user.spotify;
       let { uri, method } = getEndpoint(id, playlistId).removeFromPlaylist;
 
       let config = {
