@@ -71,7 +71,8 @@ angular.module('kexp.utils', []).factory('$localstorage', ['$window', function (
         provider: null,
         token: null
       },
-      spotify: null
+      spotify: null,
+      isGuestUser: true
     };
   }
 

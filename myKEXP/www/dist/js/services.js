@@ -4,7 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_URL', 'https://mykexp.firebaseio.com/')
+angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_URL', 'https://kexp.firebaseio.com/')
 
 // Song currently playing on KEXP.
 .factory('Song', function ($http, $q) {
@@ -87,7 +87,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Load user info from Firebase using uid.
   // Update songs list with songs that were fetched before login.
-  u.load = function (isLogginIn) {
+  u.load = function () {
 
     return new Promise(function (resolve, reject) {
       userRefs.private.child(_user.auth.uid).on('value', function (data) {
@@ -95,11 +95,13 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
         // Get new user info.
         var user = data.val();
 
-        // If logging in, add songs fetched before login to beginning of list.
-        var list = isLogginIn ? [].concat(_toConsumableArray(_user.songs.list), _toConsumableArray(user.songs.list)) : _user.songs.list;
+        // If user was initially loaded as guest (empty localStorage) then
+        // add songs that were fetched before login to beginning of list.
+        var list = _user.isGuestUser ? [].concat(_toConsumableArray(_user.songs.list), _toConsumableArray(user.songs.list)) : _user.songs.list;
 
         _user = user;
         _user.songs.list = list;
+        _user.isGuestUser = false;
         resolve(_user);
       });
     });
@@ -183,7 +185,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Return all songs user has fetched.
   u.getFetched = function () {
-    console.log('_user', _user);
     return _user.songs.list;
   };
 
@@ -250,7 +251,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
         };
 
         // Get songs, add any that were fetched before login, then save.
-        return u.load(true).then(u.save).then(function (user) {
+        return u.load().then(u.save).then(function (user) {
           resolve(user);
         });
       }).catch(function (err) {

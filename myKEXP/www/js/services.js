@@ -1,6 +1,6 @@
 angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
-  .constant('FIREBASE_URL', 'https://mykexp.firebaseio.com/')
+  .constant('FIREBASE_URL', 'https://kexp.firebaseio.com/')
 
   // Song currently playing on KEXP.
   .factory('Song', ($http, $q) => {
