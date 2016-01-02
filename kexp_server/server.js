@@ -51,6 +51,10 @@ app.get('/tokens', function(req, res) {
     json: true
   };
 
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers',
+             'Origin, X-Requested-With, Content-Type, Accept');
+
   request.post(config, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       return res.send({ tokens: body });
