@@ -232,6 +232,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     u.includes = includes;
 
 
+    // Set given prop on _user to given value.
+    u.set = (prop, val) => {
+      _user[prop] = val;
+    };
+
+
     // Return id of current user.
     u.getId = () => {
       return _user.auth.uid;
@@ -258,7 +264,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
                       });
             })
             .catch((err) => {
-              console.error(err);
+              console.error('Login error', JSON.stringify(err));
               reject(err);
             });
       });
@@ -337,7 +343,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       return $q((resolve, reject) => {
         let _ref = cordova.InAppBrowser.open(url, '_blank', 'location=no');
 
-
         _ref.addEventListener('loadstart', (e) => {
           let url = e.url,
               code = /\?code=(.+)$/.exec(url);
@@ -361,12 +366,36 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       return new Promise((resolve, reject) => {
         $http.get(url, { params })
              .then((res) => {
-               resolve(res.data.tokens);
-             })
-             .catch((err) => {
-               reject(err);
+                 resolve(res.data.tokens);
+               }, (err) => {
+                 reject(err);
              });
         });
+    };
+
+
+    // Get user Spotify info.
+    let getUser = (tokens) => {
+      let { url, method } = getEndpoint().getUser,
+          { access_token } = tokens;
+
+      return new Promise((resolve, reject) => {
+
+        let config = {
+          url,
+          method,
+          headers: {
+            Authorization: `Bearer ${access_token}`
+          }
+        };
+
+        $http(config).then((res) => {
+          let user = res.data;
+          resolve({ user, tokens} );
+        }, (err) => {
+          reject(err);
+        });
+      });
     };
 
 
@@ -376,13 +405,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
           params = { refresh_token };
 
       return $http.get(url, { params });
-    };
-
-
-    // Store tokens on user object.
-    let storeTokens = (tokens, user) => {
-      user.spotify.tokens = tokens;
-      return Promise.resolve(user);
     };
 
 
@@ -424,21 +446,20 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     };
 
 
-    // Load tokens and then save on user object.
-    s.authenticate = (user) => {
+    // Load tokens and user object from Spotify.
+    s.authenticate = () => {
       return auth().then(getTokens)
-                   .then((tokens) => {
-                     return storeTokens(tokens, user);
-                   })
+                   .then(getUser)
                    .catch((err) => {
-                     console.error(err);
+                     console.error('Spotify authenticate error: ',
+                     JSON.stringify(err));
                    });
     };
 
 
     // Load refresh tokens and save on user object.
     s.refreshTokens = (user) => {
-      return refresh(user.spotify.request_token).then((res) => {
+      return refresh(user.spotify.tokens.request_token).then((res) => {
         return storeTokens(res, user);
       });
     };
@@ -450,29 +471,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       // Construct query.
       // Fire off query.
       // Return first result or ...?
-    }
-
-
-    // Get user Spotify info.
-    s.getUser = () => {
-      let { url, method } = getEndpoint().getUser;
-
-      return new Promise((resolve, reject) => {
-
-        let config = {
-          url,
-          method,
-          headers: {
-            Authorization: `Bearer ${user.spotify.access_token}`
-          }
-        };
-
-        $http(config).then((res) => {
-          resolve(res.data);
-        }, (err) => {
-          reject(err);
-        });
-      });
     }
 
 

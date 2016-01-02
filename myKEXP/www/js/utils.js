@@ -20,8 +20,7 @@ angular.module('kexp.utils', [])
 
   .factory('$helpers', [() => {
 
-    // Helper that returns true if song is in list.
-    // Calls cb on found item if cb passed in.
+    // True if song is in list. Calls optional callback, if given.
     function includes(list, song, cb) {
       for (let [i, _song] of list.entries()) {
         if (song.id === _song.id) {

@@ -118,10 +118,12 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 // Spotify authorization.
 .controller('SpotifyCtrl', function($scope, $stateParams, User, Spotify) {
 
-  let user = User.getUser();
-
   // Authenticate with Spotify, then save tokens in localStorage and Firebase.
   $scope.authenticate = () => {
-    Spotify.authenticate(user).then(User.save);
+    Spotify.authenticate().then((spotify) => {
+        User.set('spotify', spotify);
+        User.save();
+        // Then redirect to...?
+      });
   };
 });

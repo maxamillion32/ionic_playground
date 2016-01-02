@@ -19,8 +19,7 @@ angular.module('kexp.utils', []).factory('$localstorage', ['$window', function (
   };
 }]).factory('$helpers', [function () {
 
-  // Helper that returns true if song is in list.
-  // Calls cb on found item if cb passed in.
+  // True if song is in list. Calls optional callback, if given.
   function includes(list, song, cb) {
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;

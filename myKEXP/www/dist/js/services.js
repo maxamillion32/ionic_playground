@@ -125,10 +125,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       if (_user.uid) {
         resolve(true);
       } else {
-        var _user2 = $localstorage.getObject('user');
+        var user = $localstorage.getObject('user');
 
-        if (_user2 && _user2.uid) {
-          u.setSession(_user2);
+        if (user && user.uid) {
+          u.setSession(user);
           resolve(true);
         }
       }
@@ -234,6 +234,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   u.includes = includes;
 
+  // Set given prop on _user to given value.
+  u.set = function (prop, val) {
+    _user[prop] = val;
+  };
+
   // Return id of current user.
   u.getId = function () {
     return _user.auth.uid;
@@ -255,7 +260,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
           resolve(user);
         });
       }).catch(function (err) {
-        console.error(err);
+        console.error('Login error', JSON.stringify(err));
         reject(err);
       });
     });
@@ -343,7 +348,33 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     return new Promise(function (resolve, reject) {
       $http.get(url, { params: params }).then(function (res) {
         resolve(res.data.tokens);
-      }).catch(function (err) {
+      }, function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  // Get user Spotify info.
+  var getUser = function getUser(tokens) {
+    var _getEndpoint$getUser = getEndpoint().getUser;
+    var url = _getEndpoint$getUser.url;
+    var method = _getEndpoint$getUser.method;
+    var access_token = tokens.access_token;
+
+    return new Promise(function (resolve, reject) {
+
+      var config = {
+        url: url,
+        method: method,
+        headers: {
+          Authorization: 'Bearer ' + access_token
+        }
+      };
+
+      $http(config).then(function (res) {
+        var user = res.data;
+        resolve({ user: user, tokens: tokens });
+      }, function (err) {
         reject(err);
       });
     });
@@ -355,12 +386,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
         params = { refresh_token: refresh_token };
 
     return $http.get(url, { params: params });
-  };
-
-  // Store tokens on user object.
-  var storeTokens = function storeTokens(tokens, user) {
-    user.spotify.tokens = tokens;
-    return Promise.resolve(user);
   };
 
   // Find playlist with given name in given list of playlists.
@@ -421,18 +446,16 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     };
   };
 
-  // Load tokens and then save on user object.
-  s.authenticate = function (user) {
-    return auth().then(getTokens).then(function (tokens) {
-      return storeTokens(tokens, user);
-    }).catch(function (err) {
-      console.error(err);
+  // Load tokens and user object from Spotify.
+  s.authenticate = function () {
+    return auth().then(getTokens).then(getUser).catch(function (err) {
+      console.error('Spotify authenticate error: ', JSON.stringify(err));
     });
   };
 
   // Load refresh tokens and save on user object.
   s.refreshTokens = function (user) {
-    return refresh(user.spotify.request_token).then(function (res) {
+    return refresh(user.spotify.tokens.request_token).then(function (res) {
       return storeTokens(res, user);
     });
   };
@@ -444,32 +467,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   // Fire off query.
   // Return first result or ...?
 
-  // Get user Spotify info.
-  ;s.getUser = function () {
-    var _getEndpoint$getUser = getEndpoint().getUser;
-    var url = _getEndpoint$getUser.url;
-    var method = _getEndpoint$getUser.method;
-
-    return new Promise(function (resolve, reject) {
-
-      var config = {
-        url: url,
-        method: method,
-        headers: {
-          Authorization: 'Bearer ' + user.spotify.access_token
-        }
-      };
-
-      $http(config).then(function (res) {
-        resolve(res.data);
-      }, function (err) {
-        reject(err);
-      });
-    });
-  };
-
   // Return user's playlists.
-  s.getUserPlaylists = function (user) {
+  ;s.getUserPlaylists = function (user) {
     var access_token = user.spotify.tokens.access_token;
     var _getEndpoint$getPlayl = getEndpoint().getPlaylists;
     var url = _getEndpoint$getPlayl.url;
