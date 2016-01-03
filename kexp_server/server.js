@@ -51,24 +51,26 @@ app.get('/tokens', function(req, res) {
     json: true
   };
 
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers',
-             'Origin, X-Requested-With, Content-Type, Accept');
-
   request.post(config, function(error, response, body) {
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers',
+               'Origin, X-Requested-With, Content-Type, Accept');
+
     if (!error && response.statusCode === 200) {
       return res.send({ tokens: body });
     }
+
     res.status(response.statusCode).json(error);
   });
 });
 
 
 // Get new refresh token.
-app.get('/refresh', function(req, res) {
+app.get('/refresh_token', function(req, res) {
 
   var refresh_token = req.query.refresh_token,
-      auth = new Buffer(CLIENT_SECRET + ':' + CLIENT_SECRET).toString('base64');
+      auth = new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
 
   var config = {
     url: 'https://accounts.spotify.com/api/token',
@@ -81,10 +83,15 @@ app.get('/refresh', function(req, res) {
   };
 
   request.post(config, function(error, response, body) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers',
+               'Origin, X-Requested-With, Content-Type, Accept');
+
     if (!error && response.statusCode === 200) {
-      return res.send({ tokens: body });
+      return res.send({ 'access_token': body.access_token });
     }
-    res.status(response.statusCode).json(error);
+
+    res.status(response.statusCode).json(body);
   });
 });
 
