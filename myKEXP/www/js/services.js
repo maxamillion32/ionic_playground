@@ -414,7 +414,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       return new Promise((resolve, reject) => {
         $http.get(url, { params })
              .then((res) => {
-               resolve(res);
+               resolve(res.data);
              }, (err) => {
                reject(err);
              });
@@ -514,15 +514,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
       return new Promise((resolve, reject) => {
 
-        let config = {
-          url,
-          method,
-          headers: {
-            Authorization: `Bearer ${access_token}`
-          }
+        let headers = {
+          Authorization: `Bearer ${access_token}`
         };
 
-        $http(config).then((res) => {
+        $http.get(url, { headers }).then((res) => {
+          console.log('Get playlists: ', res);
           resolve(res.data);
         }, (err) => {
           reject(err);
@@ -532,24 +529,30 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Create playlist with given name.
-    s.createPlaylist = (name, user) => {
+    s.createPlaylist = (playlistName, user) => {
       let { user: { id }, tokens: { access_token }} = user.spotify;
-      let { uri, method } = getEndpoint(id).createPlaylist;
+      let { url, method } = getEndpoint(id).createPlaylist;
 
-      let config = {
-        url,
-        method,
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        },
-        data: {
-          name: 'myKEXP',
-          'public': true
-        }
-      };
+      return new Promise((resolve, reject) => {
 
-      return $http(config);
+        let config = {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            'Content-Type': 'application/json'
+          },
+          data: {
+            name: playlistName,
+            'public': true
+          }
+        };
+
+        $http.post(url, config)
+             .then((res) => {
+               resolve(res.data)
+             }, (err) => {
+               reject(err)
+             });
+        });
     };
 
 

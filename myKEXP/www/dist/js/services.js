@@ -394,7 +394,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return new Promise(function (resolve, reject) {
       $http.get(url, { params: params }).then(function (res) {
-        resolve(res);
+        resolve(res.data);
       }, function (err) {
         reject(err);
       });
@@ -512,15 +512,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
     return new Promise(function (resolve, reject) {
 
-      var config = {
-        url: url,
-        method: method,
-        headers: {
-          Authorization: 'Bearer ' + access_token
-        }
+      var headers = {
+        Authorization: 'Bearer ' + access_token
       };
 
-      $http(config).then(function (res) {
+      $http.get(url, { headers: headers }).then(function (res) {
+        console.log('Get playlists: ', res);
         resolve(res.data);
       }, function (err) {
         reject(err);
@@ -529,28 +526,33 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   // Create playlist with given name.
-  s.createPlaylist = function (name, user) {
+  s.createPlaylist = function (playlistName, user) {
     var _user$spotify = user.spotify;
     var id = _user$spotify.user.id;
     var access_token = _user$spotify.tokens.access_token;
     var _getEndpoint$createPl = getEndpoint(id).createPlaylist;
-    var uri = _getEndpoint$createPl.uri;
+    var url = _getEndpoint$createPl.url;
     var method = _getEndpoint$createPl.method;
 
-    var config = {
-      url: url,
-      method: method,
-      headers: {
-        Authorization: 'Bearer ' + access_token,
-        'Content-Type': 'application/json'
-      },
-      data: {
-        name: 'myKEXP',
-        'public': true
-      }
-    };
+    return new Promise(function (resolve, reject) {
 
-    return $http(config);
+      var config = {
+        headers: {
+          Authorization: 'Bearer ' + access_token,
+          'Content-Type': 'application/json'
+        },
+        data: {
+          name: playlistName,
+          'public': true
+        }
+      };
+
+      $http.post(url, config).then(function (res) {
+        resolve(res.data);
+      }, function (err) {
+        reject(err);
+      });
+    });
   };
 
   // Add song to playlist.

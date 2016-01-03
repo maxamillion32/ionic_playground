@@ -89,6 +89,11 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
   $scope.searchForTrack = function(song) {
     Spotify.searchForTrack(song);
   }
+
+  $scope.getUserPlaylists = function() {
+    let user = User.getUser();
+    Spotify.getUserPlaylists(user);
+  }
 })
 
 
