@@ -271,6 +271,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     };
 
 
+    // Update Spotify access token.
+    u.setAccessToken = ({ access_token }) => {
+      _user.spotify.tokens.access_token = access_token;
+    };
+
+
     u.logout = auth.$unauth;
 
 
@@ -391,7 +397,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
         $http(config).then((res) => {
           let user = res.data;
-          resolve({ user, tokens} );
+          resolve({ user, tokens });
         }, (err) => {
           reject(err);
         });
@@ -400,11 +406,18 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
 
     // Get refresh tokens.
-    let refresh = (refresh_token) => {
-      let url = 'http://kexp.lyleblack.com/refresh',
+    s.refreshTokens = (refresh_token) => {
+      let url = 'http://kexp.lyleblack.com/refresh_token',
           params = { refresh_token };
 
-      return $http.get(url, { params });
+      return new Promise((resolve, reject) => {
+        $http.get(url, { params })
+             .then((res) => {
+               resolve(res);
+             }, (err) => {
+               reject(err);
+             });
+      });
     };
 
 
@@ -448,20 +461,12 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Load tokens and user object from Spotify.
     s.authenticate = () => {
-      return auth().then(getTokens)
-                   .then(getUser)
-                   .catch((err) => {
-                     console.error('Spotify authenticate error: ',
-                     JSON.stringify(err));
-                   });
-    };
-
-
-    // Load refresh tokens and save on user object.
-    s.refreshTokens = (user) => {
-      return refresh(user.spotify.tokens.request_token).then((res) => {
-        return storeTokens(res, user);
-      });
+      return auth()
+               .then(getTokens)
+               .then(getUser)
+               .catch((err) => {
+                 console.error(`Error while authenticating with Spotify: ${err}`);
+               });
     };
 
 

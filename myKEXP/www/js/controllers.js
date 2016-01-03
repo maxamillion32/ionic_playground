@@ -30,7 +30,18 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
     } else {
       User.login(loginData)
           .then((user) => {
-            if (user.spotify) Spotify.refreshTokens(user);
+            if (user.spotify) {
+              let { tokens: { refresh_token }} = user.spotify;
+
+              Spotify.refreshTokens(refresh_token)
+                     .then((tokens) => {
+                       User.setAccessToken(tokens);
+                       User.save();
+                     })
+                     .catch((err) => {
+                       console.error(`Error while refreshing tokens: ${JSON.stringify(err)}`);
+                     });
+            }
           });
     }
     $scope.closeLogin();

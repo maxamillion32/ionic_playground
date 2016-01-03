@@ -266,6 +266,13 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     });
   };
 
+  // Update Spotify access token.
+  u.setAccessToken = function (_ref2) {
+    var access_token = _ref2.access_token;
+
+    _user.spotify.tokens.access_token = access_token;
+  };
+
   u.logout = auth.$unauth;
 
   // Create account in Firebase.
@@ -381,11 +388,17 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   };
 
   // Get refresh tokens.
-  var refresh = function refresh(refresh_token) {
-    var url = 'http://kexp.lyleblack.com/refresh',
+  s.refreshTokens = function (refresh_token) {
+    var url = 'http://kexp.lyleblack.com/refresh_token',
         params = { refresh_token: refresh_token };
 
-    return $http.get(url, { params: params });
+    return new Promise(function (resolve, reject) {
+      $http.get(url, { params: params }).then(function (res) {
+        resolve(res);
+      }, function (err) {
+        reject(err);
+      });
+    });
   };
 
   // Find playlist with given name in given list of playlists.
@@ -449,14 +462,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
   // Load tokens and user object from Spotify.
   s.authenticate = function () {
     return auth().then(getTokens).then(getUser).catch(function (err) {
-      console.error('Spotify authenticate error: ', JSON.stringify(err));
-    });
-  };
-
-  // Load refresh tokens and save on user object.
-  s.refreshTokens = function (user) {
-    return refresh(user.spotify.tokens.request_token).then(function (res) {
-      return storeTokens(res, user);
+      console.error('Error while authenticating with Spotify: ' + err);
     });
   };
 

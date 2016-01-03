@@ -19,7 +19,7 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
 
-    .state('app', {
+  .state('app', {
     url: '/app',
     abstract: true,
     templateUrl: 'templates/menu.html',
@@ -28,25 +28,25 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
 
   // Currently playing page.
   .state('app.current', {
-      url: '/current',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/current.html',
-          controller: 'CurrentCtrl'
-        }
+    url: '/current',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/current.html',
+        controller: 'CurrentCtrl'
       }
-    })
+    }
+  })
 
-    // Previously fetched songs.
-    .state('app.songs', {
-      url: '/songs',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/songs.html',
-          controller: 'SongsCtrl'
-        }
+  // Previously fetched songs.
+  .state('app.songs', {
+    url: '/songs',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/songs.html',
+        controller: 'SongsCtrl'
       }
-    })
+    }
+  })
 
   // Song page.
   .state('app.song', {

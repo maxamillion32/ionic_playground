@@ -28,7 +28,16 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
       User.signup(loginData);
     } else {
       User.login(loginData).then(function (user) {
-        if (user.spotify) Spotify.refreshTokens(user);
+        if (user.spotify) {
+          var refresh_token = user.spotify.tokens.refresh_token;
+
+          Spotify.refreshTokens(refresh_token).then(function (tokens) {
+            User.setAccessToken(tokens);
+            User.save();
+          }).catch(function (err) {
+            console.error('Error while refreshing tokens: ' + JSON.stringify(err));
+          });
+        }
       });
     }
     $scope.closeLogin();
