@@ -1,6 +1,7 @@
 angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
   .constant('FIREBASE_URL', 'https://kexp.firebaseio.com/')
+  .constant('SPOTIFY_API_URL', 'https://api.spotify.com/v1')
 
   // Song currently playing on KEXP.
   .factory('Song', ($http, $q) => {
@@ -321,7 +322,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
   })
 
   // Spotify
-  .factory('Spotify', ($window, FIREBASE_URL, $q, $http) => {
+  .factory('Spotify', ($window, FIREBASE_URL, SPOTIFY_API_URL, $q, $http) => {
 
     let s = {};
 
@@ -432,11 +433,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Return uri and method of requested endpoint.
     let getEndpoint = (user_id, playlist_id) => {
-      let url = 'https://api.spotify.com/v1';
+      let url = SPOTIFY_API_URL;
 
       return {
         getUser: {
-          url: `https://api.spotify.com/v1/me`,
+          url: `${url}/me`,
           method: 'GET'
         },
         getPlaylists: {
@@ -454,6 +455,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         removeFromPlaylist: {
           url: `${url}/users/${user_id}/playlists/${playlist_id}/tracks`,
           method: 'DELETE'
+        },
+        search: {
+          url: `${url}/search?`,
+          method: 'GET'
         }
       };
     };
@@ -470,13 +475,36 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     };
 
 
+    let buildQuery = ({ ArtistName, TrackName, ReleaseName }) => {
+      let album = ReleaseName ? `album:${ReleaseName} ` : '',
+          artist = ArtistName ? `artist:${ArtistName} ` : '',
+          track = TrackName ? `track:${TrackName} ` : '',
+          query = '';
+
+      [album, artist, track].forEach((type, i) => {
+        if (type) query += type;
+      });
+
+      return query.trimRight();
+    };
+
+
     // Search for song.
     s.searchForTrack = (song) => {
-      // Pull out track name, artist name, album name.
-      // Construct query.
-      // Fire off query.
-      // Return first result or ...?
-    }
+      let { url } = getEndpoint().search;
+
+      return new Promise((resolve, reject) => {
+        let params = { type: 'track', q: buildQuery(song) };
+
+        $http.get(url, { params })
+             .then((res) => {
+               console.log('Search res: ', res);
+               resolve(res.data);
+             }, (err) => {
+               reject(err);
+             });
+      });
+    };
 
 
     // Return user's playlists.

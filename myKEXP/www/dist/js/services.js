@@ -4,7 +4,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_URL', 'https://kexp.firebaseio.com/')
+angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_URL', 'https://kexp.firebaseio.com/').constant('SPOTIFY_API_URL', 'https://api.spotify.com/v1')
 
 // Song currently playing on KEXP.
 .factory('Song', function ($http, $q) {
@@ -310,7 +310,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 })
 
 // Spotify
-.factory('Spotify', function ($window, FIREBASE_URL, $q, $http) {
+.factory('Spotify', function ($window, FIREBASE_URL, SPOTIFY_API_URL, $q, $http) {
 
   var s = {};
 
@@ -433,11 +433,11 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Return uri and method of requested endpoint.
   var getEndpoint = function getEndpoint(user_id, playlist_id) {
-    var url = 'https://api.spotify.com/v1';
+    var url = SPOTIFY_API_URL;
 
     return {
       getUser: {
-        url: 'https://api.spotify.com/v1/me',
+        url: url + '/me',
         method: 'GET'
       },
       getPlaylists: {
@@ -455,6 +455,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       removeFromPlaylist: {
         url: url + '/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
         method: 'DELETE'
+      },
+      search: {
+        url: url + '/search?',
+        method: 'GET'
       }
     };
   };
@@ -466,15 +470,41 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     });
   };
 
+  var buildQuery = function buildQuery(_ref3) {
+    var ArtistName = _ref3.ArtistName;
+    var TrackName = _ref3.TrackName;
+    var ReleaseName = _ref3.ReleaseName;
+
+    var album = ReleaseName ? 'album:' + ReleaseName + ' ' : '',
+        artist = ArtistName ? 'artist:' + ArtistName + ' ' : '',
+        track = TrackName ? 'track:' + TrackName + ' ' : '',
+        query = '';
+
+    [album, artist, track].forEach(function (type, i) {
+      if (type) query += type;
+    });
+
+    return query.trimRight();
+  };
+
   // Search for song.
-  s.searchForTrack = function (song) {}
-  // Pull out track name, artist name, album name.
-  // Construct query.
-  // Fire off query.
-  // Return first result or ...?
+  s.searchForTrack = function (song) {
+    var url = getEndpoint().search.url;
+
+    return new Promise(function (resolve, reject) {
+      var params = { type: 'track', q: buildQuery(song) };
+
+      $http.get(url, { params: params }).then(function (res) {
+        console.log('Search res: ', res);
+        resolve(res.data);
+      }, function (err) {
+        reject(err);
+      });
+    });
+  };
 
   // Return user's playlists.
-  ;s.getUserPlaylists = function (user) {
+  s.getUserPlaylists = function (user) {
     var access_token = user.spotify.tokens.access_token;
     var _getEndpoint$getPlayl = getEndpoint().getPlaylists;
     var url = _getEndpoint$getPlayl.url;

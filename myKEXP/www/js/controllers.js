@@ -50,7 +50,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 
 // Currently playing song.
-.controller('CurrentCtrl', function($scope, Song, User) {
+.controller('CurrentCtrl', function($scope, Song, User, Spotify) {
 
   $scope.$on('$ionicView.enter', function(e) {
     $scope.refresh();
@@ -85,6 +85,10 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
   $scope.removeFromFavorites = function(song) {
     User.removeSongFromFavorites(song);
   };
+
+  $scope.searchForTrack = function(song) {
+    Spotify.searchForTrack(song);
+  }
 })
 
 
