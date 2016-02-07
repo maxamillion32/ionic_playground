@@ -2,7 +2,6 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, User, Spotify) {
 
-
   // Form data for the login modal
   $scope.loginData = {};
 
@@ -113,9 +112,14 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
 
 // Spotify playlists.
-.controller('PlaylistsCtrl', function($scope, User, Spotify) {
+.controller('PlaylistsCtrl', function($scope, $ionicModal, User, Spotify) {
 
   $scope.$on('$ionicView.enter', function(e) {
+    $scope.refresh();
+  });
+
+  // Load user's playlists.
+  $scope.refresh = () => {
     let user = User.getUser();
 
     Spotify.getUserPlaylists(user)
@@ -126,18 +130,49 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       .catch((err) => {
         $scope.err = err;
       });
+  };
+
+  // Create the login modal that we will use later
+  $ionicModal.fromTemplateUrl('templates/createPlaylist.html', {
+    scope: $scope
+  }).then((modal) => {
+    $scope.modal = modal;
   });
 
+  $scope.close = () => {
+    $scope.modal.hide();
+  };
+
+  $scope.open = () => {
+    $scope.modal.show();
+  };
+
+  $scope.createPlaylist = (name) => {
+    let user = User.getUser();
+
+    Spotify.createPlaylist(name, user)
+      .then(
+        (res) => {
+          console.log('res', res);
+          $scope.refresh();
+        },
+        (err) => {
+          $scope.err = err;
+        });
+
+    $scope.close();
+  }
+
   $scope.getPublic = () => {
-    return Spotify.getPublicPlaylists();
+    $scope.playlists = Spotify.getPublicPlaylists();
   };
 
   $scope.getPrivate = () => {
-    return Spotify.getPrivatePlaylists();
+    $scope.playlists = Spotify.getPrivatePlaylists();
   };
 
   $scope.getAll = () => {
-    return Spotify.getAllPlaylists();
+    $scope.playlists = Spotify.getAllPlaylists();
   }
 })
 
@@ -145,6 +180,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 .controller('PlaylistCtrl', function($scope, $stateParams, User, Spotify) {
   $scope.tracks = [];
   $scope.err = null;
+  $scope.playlist = {};
 
   $scope.$on('$ionicView.enter', function(e) {
     $scope.refresh();

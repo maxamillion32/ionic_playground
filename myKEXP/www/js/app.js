@@ -59,7 +59,6 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
     }
   })
 
-
   // Spotify authorization page.
   .state('app.spotify', {
     url: '/spotify',
@@ -70,7 +69,6 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
       }
     }
   })
-
 
   // Spotify song search results.
   .state('app.search', {
@@ -83,7 +81,6 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
     }
   })
 
-
   // Spotify playlists page.
   .state('app.playlists', {
     url: '/spotify/playlists',
@@ -94,7 +91,6 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
       }
     }
   })
-
 
   // Spotify playlist page.
   .state('app.playlist', {

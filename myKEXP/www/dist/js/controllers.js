@@ -104,9 +104,14 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
 })
 
 // Spotify playlists.
-.controller('PlaylistsCtrl', function ($scope, User, Spotify) {
+.controller('PlaylistsCtrl', function ($scope, $ionicModal, User, Spotify) {
 
   $scope.$on('$ionicView.enter', function (e) {
+    $scope.refresh();
+  });
+
+  // Load user's playlists.
+  $scope.refresh = function () {
     var user = User.getUser();
 
     Spotify.getUserPlaylists(user).then(function (data) {
@@ -116,22 +121,51 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
     }).catch(function (err) {
       $scope.err = err;
     });
+  };
+
+  // Create the login modal that we will use later
+  $ionicModal.fromTemplateUrl('templates/createPlaylist.html', {
+    scope: $scope
+  }).then(function (modal) {
+    $scope.modal = modal;
   });
 
+  $scope.close = function () {
+    $scope.modal.hide();
+  };
+
+  $scope.open = function () {
+    $scope.modal.show();
+  };
+
+  $scope.createPlaylist = function (name) {
+    var user = User.getUser();
+
+    Spotify.createPlaylist(name, user).then(function (res) {
+      console.log('res', res);
+      $scope.refresh();
+    }, function (err) {
+      $scope.err = err;
+    });
+
+    $scope.close();
+  };
+
   $scope.getPublic = function () {
-    return Spotify.getPublicPlaylists();
+    $scope.playlists = Spotify.getPublicPlaylists();
   };
 
   $scope.getPrivate = function () {
-    return Spotify.getPrivatePlaylists();
+    $scope.playlists = Spotify.getPrivatePlaylists();
   };
 
   $scope.getAll = function () {
-    return Spotify.getAllPlaylists();
+    $scope.playlists = Spotify.getAllPlaylists();
   };
 }).controller('PlaylistCtrl', function ($scope, $stateParams, User, Spotify) {
   $scope.tracks = [];
   $scope.err = null;
+  $scope.playlist = {};
 
   $scope.$on('$ionicView.enter', function (e) {
     $scope.refresh();

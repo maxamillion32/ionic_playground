@@ -1,6 +1,14 @@
 <ion-view view-title="Playlists">
 
   <ion-content>
+    <ion-header-bar>
+      <h1 class="title">Playlists</h1>
+      <div class="buttons">
+        <button class="button" ng-click="open()">
+          Create playlist
+        </button>
+      </div>
+    </ion-header-bar>
     <ion-list ng-if="playlists.length">
       <ion-item class="item-thumbnail-left item-icon-right"
                 menu-close

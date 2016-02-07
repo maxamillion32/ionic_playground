@@ -1,0 +1,26 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Create Playlist</h1>
+    <div class="buttons">
+      <button class="button button-clear" ng-click="close()">
+        Close
+      </button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <form ng-submit="createPlaylist(playlist)">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Playlist name</span>
+          <input type="text" ng-model="playlist.name">
+        </label>
+
+        <label class="item">
+          <button class="button button-block button-positive" type="submit">
+            Create {{playlist.name}}
+          </button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>
