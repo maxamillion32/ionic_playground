@@ -561,7 +561,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     var id = _user$spotify2.user.id;
     var access_token = _user$spotify2.tokens.access_token;
     var _getEndpoint$addToPla = getEndpoint(id, playlistId).addToPlaylist;
-    var uri = _getEndpoint$addToPla.uri;
+    var url = _getEndpoint$addToPla.url;
     var method = _getEndpoint$addToPla.method;
 
     var config = {
@@ -585,7 +585,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     var id = _user$spotify3.user.id;
     var access_token = _user$spotify3.tokens.access_token;
     var _getEndpoint$removeFr = getEndpoint(id, playlistId).removeFromPlaylist;
-    var uri = _getEndpoint$removeFr.uri;
+    var url = _getEndpoint$removeFr.url;
     var method = _getEndpoint$removeFr.method;
 
     var config = {

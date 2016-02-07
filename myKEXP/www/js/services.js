@@ -559,7 +559,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     // Add song to playlist.
     s.addToPlaylist = (user, trackId, playlistId) => {
       let { user: { id }, tokens: { access_token }} = user.spotify;
-      let { uri, method } = getEndpoint(id, playlistId).addToPlaylist;
+      let { url, method } = getEndpoint(id, playlistId).addToPlaylist;
 
       let config = {
         url,
@@ -580,7 +580,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
     // Remove song from playlist
     s.removeFromPlaylist = (user, trackId, playlistId) => {
       let { user: { id }, tokens: { access_token }} = user.spotify;
-      let { uri, method } = getEndpoint(id, playlistId).removeFromPlaylist;
+      let { url, method } = getEndpoint(id, playlistId).removeFromPlaylist;
 
       let config = {
         url,

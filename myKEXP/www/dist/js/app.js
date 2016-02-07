@@ -64,6 +64,17 @@ angular.module('kexp', ['ionic', 'kexp.controllers']).run(function ($ionicPlatfo
         controller: 'SpotifyCtrl'
       }
     }
+  })
+
+  // Spotify song search results.
+  .state('app.search', {
+    url: '/spotify/search',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/search.html',
+        controller: 'SpotifyCtrl'
+      }
+    }
   });
 
   // if none of the above states are matched, use this as the fallback

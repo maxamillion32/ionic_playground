@@ -58,24 +58,23 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
 
   // Fetch currently playing song and add to scope.
   $scope.refresh = function() {
-    Song.getCurrentlyPlaying().then(function() {
-      var currentSong = Song.getCurrent(),
-          prevSong = $scope.song;
+    Song.getCurrentlyPlaying()
+      .then(() => {
+        var currentSong = Song.getCurrent(),
+            prevSong = $scope.song;
 
-      // Don't continue if fetched song is same as previous one.
-      if (prevSong && prevSong.ArtistName === currentSong.ArtistName) {
-        return;
-      }
+        // Don't continue if fetched song is same as previous one.
+        if (prevSong && prevSong.ArtistName === currentSong.ArtistName) {
+          return;
+        }
 
-      $scope.song = currentSong;
+        $scope.song = currentSong;
 
-      if (!currentSong.airBreak) {
-        User.addSongToFetched(currentSong);
-      }
-    })
-    .finally(function() {
-      $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
-    })
+        if (!currentSong.airBreak) User.addSongToFetched(currentSong);
+      })
+      .finally(() => {
+        $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
+      });
   };
 
   $scope.addToFavorites = function(song) {
@@ -87,7 +86,28 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
   };
 
   $scope.searchForTrack = function(song) {
-    Spotify.searchForTrack(song);
+    Spotify.searchForTrack(song)
+      .then((result) => {
+        let { tracks: { items: tracks }} = result;
+
+        if (!tracks.length) {
+          console.log('Nothing found.');
+          // Handle nothing found.
+        } else {
+          // Use myKEXP playlist id for now.
+          // Eventually, allow user to choose which of their playlists
+          // to add. Also build out template to show list of matched
+          // tracks and let user pick which track to add.
+          let { id: trackId } = tracks[0];
+          let playlistId = '3bTSpMFQZs3809GfOPG4ua';
+          let user = User.getUser();
+
+          return Spotify.addToPlaylist(user, trackId, playlistId);
+        }
+      })
+      .catch((err) => {
+        console.error(`Error while searching for track: ${err}`);
+      });
   }
 
   $scope.getUserPlaylists = function() {

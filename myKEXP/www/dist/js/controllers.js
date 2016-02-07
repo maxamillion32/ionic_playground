@@ -64,9 +64,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
 
       $scope.song = currentSong;
 
-      if (!currentSong.airBreak) {
-        User.addSongToFetched(currentSong);
-      }
+      if (!currentSong.airBreak) User.addSongToFetched(currentSong);
     }).finally(function () {
       $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
     });
@@ -81,7 +79,27 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
   };
 
   $scope.searchForTrack = function (song) {
-    Spotify.searchForTrack(song);
+    Spotify.searchForTrack(song).then(function (result) {
+      var tracks = result.tracks.items;
+
+      if (!tracks.length) {
+        console.log('Nothing found.');
+        // Handle nothing found.
+      } else {
+          // Use myKEXP playlist id for now.
+          // Eventually, allow user to choose which of their playlists
+          // to add. Also build out template to show list of matched
+          // tracks and let user pick which track to add.
+          var trackId = tracks[0].id;
+
+          var playlistId = '3bTSpMFQZs3809GfOPG4ua';
+          var user = User.getUser();
+
+          return Spotify.addToPlaylist(user, trackId, playlistId);
+        }
+    }).catch(function (err) {
+      console.error('Error while searching for track: ' + err);
+    });
   };
 
   $scope.getUserPlaylists = function () {
