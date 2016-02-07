@@ -83,6 +83,30 @@ angular.module('kexp', ['ionic', 'kexp.controllers'])
     }
   })
 
+
+  // Spotify playlists page.
+  .state('app.playlists', {
+    url: '/spotify/playlists',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/playlists.html',
+        controller: 'PlaylistsCtrl'
+      }
+    }
+  })
+
+
+  // Spotify playlist page.
+  .state('app.playlist', {
+    url: '/spotify/playlists/:playlistId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/playlist.html',
+        controller: 'PlaylistCtrl'
+      }
+    }
+  })
+
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/current');
 });

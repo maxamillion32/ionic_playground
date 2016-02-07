@@ -109,11 +109,74 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
         console.error(`Error while searching for track: ${err}`);
       });
   }
+})
 
-  $scope.getUserPlaylists = function() {
+
+// Spotify playlists.
+.controller('PlaylistsCtrl', function($scope, User, Spotify) {
+
+  $scope.$on('$ionicView.enter', function(e) {
     let user = User.getUser();
-    Spotify.getUserPlaylists(user);
+
+    Spotify.getUserPlaylists(user)
+      .then((data) => {
+        let { items: playlists } = data;
+        $scope.playlists = playlists;
+      })
+      .catch((err) => {
+        $scope.err = err;
+      });
+  });
+
+  $scope.getPublic = () => {
+    return Spotify.getPublicPlaylists();
+  };
+
+  $scope.getPrivate = () => {
+    return Spotify.getPrivatePlaylists();
+  };
+
+  $scope.getAll = () => {
+    return Spotify.getAllPlaylists();
   }
+})
+
+
+.controller('PlaylistCtrl', function($scope, $stateParams, User, Spotify) {
+  $scope.tracks = [];
+  $scope.err = null;
+
+  $scope.$on('$ionicView.enter', function(e) {
+    $scope.refresh();
+  });
+
+  $scope.refresh = () => {
+    let user = User.getUser();
+
+    Spotify.getPlaylistTracks(user, $stateParams.playlistId)
+      .then(
+        (res) => {
+          $scope.tracks = res.data.items.map(t => t.track);
+        },
+        (err) => {
+          $scope.err = err;
+        }
+      );
+  };
+
+  $scope.removeFromPlaylist = (track) => {
+    let user = User.getUser();
+
+    Spotify.removeFromPlaylist(user, track.id, $stateParams.playlistId)
+      .then(
+        () => {
+          $scope.refresh();
+        },
+        (err) => {
+          $scope.err = err;
+        }
+      );
+  };
 })
 
 

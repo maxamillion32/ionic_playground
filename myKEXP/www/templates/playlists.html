@@ -1,0 +1,32 @@
+<ion-view view-title="Playlists">
+
+  <ion-content>
+    <ion-list ng-if="playlists.length">
+      <ion-item class="item-thumbnail-left item-icon-right"
+                menu-close
+                ng-repeat="playlist in playlists"
+                href="#/app/spotify/playlists/{{playlist.id}}">
+        <img ng-src="{{playlist.images[0].url || 'img/default.jpg'}}">
+        <h2>{{playlist.name}}</h2>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+
+  <ion-footer-bar>
+    <div class="tabs tabs-icon-top">
+      <a class="tab-item" ng-click="getPublic()">
+        <i class="icon ion-music-note"></i>
+        Public
+      </a>
+      <a class="tab-item" ng-click="getPrivate()">
+        <i class="icon ion-heart"></i>
+        Private
+      </a>
+      <a class="tab-item" ng-click="getAll()">
+        <i class="icon ion-home"></i>
+        All
+      </a>
+    </div>
+
+  </ion-footer-bar>
+</ion-view>

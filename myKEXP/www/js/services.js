@@ -206,17 +206,13 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
     // Return all songs user has favorited.
     u.getFavorites = () => {
-      return _user.songs.list.filter((song, i) => {
-        return song.favorite;
-      });
+      return _user.songs.list.filter(s => s.favorite);
     };
 
 
     // Get all local songs user has fetched.
     u.getLocal = () => {
-      return _user.songs.list.filter((song, i) => {
-        return song.IsLocal;
-      })
+      return _user.songs.list.filter(s => s.IsLocal);
     };
 
 
@@ -325,6 +321,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
   .factory('Spotify', ($window, FIREBASE_URL, SPOTIFY_API_URL, $q, $http) => {
 
     let s = {};
+    let _playlists = {};
 
     let redirect_uri = 'http://localhost/callback';
     let CLIENT_ID = '05f018422a7f4c6f9820f782e55dd398';
@@ -459,6 +456,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         search: {
           url: `${url}/search?`,
           method: 'GET'
+        },
+        getPlaylistTracks: {
+          url: `${url}/users/${user_id}/playlists/${playlist_id}/tracks`,
+          method: 'GET'
         }
       };
     };
@@ -519,7 +520,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         };
 
         $http.get(url, { headers }).then((res) => {
-          console.log('Get playlists: ', res);
+          _playlists = res.data;
+          console.log('Get playlists: ', res.data);
           resolve(res.data);
         }, (err) => {
           reject(err);
@@ -594,9 +596,42 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
         }
       };
 
-      return  $http(config);
+      return $http(config);
     }
 
+
+    s.getPlaylistTracks = (user, playlistId) => {
+      let { user: { id }, tokens: { access_token }} = user.spotify;
+      let { url, method } = getEndpoint(id, playlistId).getPlaylistTracks;
+
+      let config = {
+        url,
+        method,
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      return $http(config);
+    }
+
+
+    s.getPublicPlaylists = () => {
+      let playlists = _playlists.items.filter(p => p.public);
+      return [...playlists];
+    }
+
+
+    s.getPrivatePlaylists = () => {
+      let playlists = _playlists.items.filter(p => !p.public);
+      return [...playlists];
+    }
+
+
+    s.getAllPlaylists = () => {
+      return [..._playlists.items];
+    }
 
     return s;
   });

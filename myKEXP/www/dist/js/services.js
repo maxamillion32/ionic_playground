@@ -190,15 +190,15 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
   // Return all songs user has favorited.
   u.getFavorites = function () {
-    return _user.songs.list.filter(function (song, i) {
-      return song.favorite;
+    return _user.songs.list.filter(function (s) {
+      return s.favorite;
     });
   };
 
   // Get all local songs user has fetched.
   u.getLocal = function () {
-    return _user.songs.list.filter(function (song, i) {
-      return song.IsLocal;
+    return _user.songs.list.filter(function (s) {
+      return s.IsLocal;
     });
   };
 
@@ -313,6 +313,7 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 .factory('Spotify', function ($window, FIREBASE_URL, SPOTIFY_API_URL, $q, $http) {
 
   var s = {};
+  var _playlists = {};
 
   var redirect_uri = 'http://localhost/callback';
   var CLIENT_ID = '05f018422a7f4c6f9820f782e55dd398';
@@ -459,6 +460,10 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       search: {
         url: url + '/search?',
         method: 'GET'
+      },
+      getPlaylistTracks: {
+        url: url + '/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+        method: 'GET'
       }
     };
   };
@@ -517,7 +522,8 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       };
 
       $http.get(url, { headers: headers }).then(function (res) {
-        console.log('Get playlists: ', res);
+        _playlists = res.data;
+        console.log('Get playlists: ', res.data);
         resolve(res.data);
       }, function (err) {
         reject(err);
@@ -601,6 +607,44 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     };
 
     return $http(config);
+  };
+
+  s.getPlaylistTracks = function (user, playlistId) {
+    var _user$spotify4 = user.spotify;
+    var id = _user$spotify4.user.id;
+    var access_token = _user$spotify4.tokens.access_token;
+    var _getEndpoint$getPlayl2 = getEndpoint(id, playlistId).getPlaylistTracks;
+    var url = _getEndpoint$getPlayl2.url;
+    var method = _getEndpoint$getPlayl2.method;
+
+    var config = {
+      url: url,
+      method: method,
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    return $http(config);
+  };
+
+  s.getPublicPlaylists = function () {
+    var playlists = _playlists.items.filter(function (p) {
+      return p.public;
+    });
+    return [].concat(_toConsumableArray(playlists));
+  };
+
+  s.getPrivatePlaylists = function () {
+    var playlists = _playlists.items.filter(function (p) {
+      return !p.public;
+    });
+    return [].concat(_toConsumableArray(playlists));
+  };
+
+  s.getAllPlaylists = function () {
+    return [].concat(_toConsumableArray(_playlists.items));
   };
 
   return s;

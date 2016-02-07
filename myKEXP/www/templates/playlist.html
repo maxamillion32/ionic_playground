@@ -1,0 +1,17 @@
+<ion-view view-title="Playlist">
+  <ion-content>
+    <ion-list ng-if="tracks.length">
+      <ion-item class="item-thumbnail-left item-icon-right"
+                menu-close
+                ng-repeat="track in tracks"
+                href="#/app/songs/{{track.id}}">
+        <img ng-src="{{track.album.images[2].url}}">
+        <h2>{{track.name}}</h2>
+        <p>{{track.artists[0].name}}</p>
+        <ion-option-button class="ion-minus-circled button-assertive"
+                           ng-click="removeFromPlaylist(track)">
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
