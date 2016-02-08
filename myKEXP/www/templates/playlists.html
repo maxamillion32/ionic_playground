@@ -1,13 +1,5 @@
 <ion-view view-title="Playlists">
-
   <ion-content>
-    <ion-header-bar>
-      <h1 class="title">Playlists</h1>
-      <div class="buttons">
-        <button class="button" ng-click="open()">
-          Create playlist
-        </button>
-      </div>
     </ion-header-bar>
     <ion-list ng-if="playlists.length">
       <ion-item class="item-thumbnail-left item-icon-right"
@@ -21,20 +13,10 @@
   </ion-content>
 
   <ion-footer-bar>
-    <div class="tabs tabs-icon-top">
-      <a class="tab-item" ng-click="getPublic()">
-        <i class="icon ion-music-note"></i>
-        Public
-      </a>
-      <a class="tab-item" ng-click="getPrivate()">
-        <i class="icon ion-heart"></i>
-        Private
-      </a>
-      <a class="tab-item" ng-click="getAll()">
-        <i class="icon ion-home"></i>
-        All
-      </a>
+    <div class="bar bar-footer bar-balanced">
+      <div class="title" ng-click="open()">
+        Create playlist
+      </div>
     </div>
-
   </ion-footer-bar>
 </ion-view>
