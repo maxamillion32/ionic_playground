@@ -118,7 +118,9 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
       var playlists = data.items;
 
       $scope.playlists = playlists;
+      $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
     }).catch(function (err) {
+      $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
       $scope.err = err;
     });
   };

@@ -126,8 +126,10 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
       .then((data) => {
         let { items: playlists } = data;
         $scope.playlists = playlists;
+        $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
       })
       .catch((err) => {
+        $scope.$broadcast('scroll.refreshComplete'); // Stop spinner
         $scope.err = err;
       });
   };

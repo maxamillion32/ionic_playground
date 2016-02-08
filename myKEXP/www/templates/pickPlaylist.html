@@ -1,0 +1,25 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Pick Playlist</h1>
+    <div class="buttons">
+      <button class="button button-clear" ng-click="close()">
+        Close
+      </button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+
+    <form ng-submit="pickPlaylist(playlist.name)">
+      <ion-list>
+        <ion-radio ng-repeat="playlist in playlists"
+                   ng-value="{{playlist.name}}">
+          {{playlist.name}}
+        </ion-radio>
+      </ion-list>
+      <button class="button button-block button-positive" type="submit">
+        Select
+      </button>
+    </form>
+
+  </ion-content>
+</ion-modal-view>
