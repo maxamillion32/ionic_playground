@@ -84,7 +84,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
     User.removeSongFromFavorites(song);
   };
 
-  $scope.searchForTrack = function(song) {
+  $scope.addToPlaylist = function(song) {
     Spotify.searchForTrack(song)
       .then((result) => {
         let { tracks: { items: tracks }} = result;
@@ -253,6 +253,26 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services'])
   $scope.removeFromFavorites = function(song) {
     User.removeSongFromFavorites(song);
   };
+
+  $scope.addToPlaylist = function(song) {
+    Spotify.searchForTrack(song)
+      .then((result) => {
+        let { tracks: { items: tracks }} = result;
+
+        if (!tracks.length) {
+          console.log('Nothing found.');
+        } else {
+          let { id: trackId } = tracks[0];
+          let playlistId = '3bTSpMFQZs3809GfOPG4ua';
+          let user = User.getUser();
+
+          return Spotify.addToPlaylist(user, trackId, playlistId);
+        }
+      })
+      .catch((err) => {
+        console.error(`Error while searching for track: ${err}`);
+      });
+  }
 })
 
 // Spotify authorization.

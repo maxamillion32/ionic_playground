@@ -78,7 +78,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
     User.removeSongFromFavorites(song);
   };
 
-  $scope.searchForTrack = function (song) {
+  $scope.addToPlaylist = function (song) {
     Spotify.searchForTrack(song).then(function (result) {
       var tracks = result.tracks.items;
 
@@ -229,6 +229,25 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
 
   $scope.removeFromFavorites = function (song) {
     User.removeSongFromFavorites(song);
+  };
+
+  $scope.addToPlaylist = function (song) {
+    Spotify.searchForTrack(song).then(function (result) {
+      var tracks = result.tracks.items;
+
+      if (!tracks.length) {
+        console.log('Nothing found.');
+      } else {
+        var trackId = tracks[0].id;
+
+        var playlistId = '3bTSpMFQZs3809GfOPG4ua';
+        var user = User.getUser();
+
+        return Spotify.addToPlaylist(user, trackId, playlistId);
+      }
+    }).catch(function (err) {
+      console.error('Error while searching for track: ' + err);
+    });
   };
 })
 
