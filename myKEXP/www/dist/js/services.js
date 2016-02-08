@@ -500,7 +500,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
       var params = { type: 'track', q: buildQuery(song) };
 
       $http.get(url, { params: params }).then(function (res) {
-        console.log('Search res: ', res);
         resolve(res.data);
       }, function (err) {
         reject(err);
@@ -523,7 +522,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
 
       $http.get(url, { headers: headers }).then(function (res) {
         _playlists = res.data;
-        console.log('Get playlists: ', res.data);
         resolve(res.data);
       }, function (err) {
         reject(err);
@@ -543,17 +541,19 @@ angular.module('kexp.services', ['kexp.utils', 'firebase']).constant('FIREBASE_U
     return new Promise(function (resolve, reject) {
 
       var config = {
+        url: url,
+        method: method,
         headers: {
           Authorization: 'Bearer ' + access_token,
           'Content-Type': 'application/json'
         },
         data: {
           name: playlistName,
-          'public': true
+          'public': 'true'
         }
       };
 
-      $http.post(url, config).then(function (res) {
+      $http(config).then(function (res) {
         resolve(res.data);
       }, function (err) {
         reject(err);

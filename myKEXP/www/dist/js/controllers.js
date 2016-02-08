@@ -142,7 +142,6 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
     var user = User.getUser();
 
     Spotify.createPlaylist(name, user).then(function (res) {
-      console.log('res', res);
       $scope.refresh();
     }, function (err) {
       $scope.err = err;

@@ -499,7 +499,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
         $http.get(url, { params })
              .then((res) => {
-               console.log('Search res: ', res);
                resolve(res.data);
              }, (err) => {
                reject(err);
@@ -521,7 +520,6 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
 
         $http.get(url, { headers }).then((res) => {
           _playlists = res.data;
-          console.log('Get playlists: ', res.data);
           resolve(res.data);
         }, (err) => {
           reject(err);
@@ -538,17 +536,19 @@ angular.module('kexp.services', ['kexp.utils', 'firebase'])
       return new Promise((resolve, reject) => {
 
         let config = {
+          url,
+          method,
           headers: {
             Authorization: `Bearer ${access_token}`,
             'Content-Type': 'application/json'
           },
           data: {
             name: playlistName,
-            'public': true
+            'public': 'true'
           }
         };
 
-        $http.post(url, config)
+        $http(config)
              .then((res) => {
                resolve(res.data)
              }, (err) => {
