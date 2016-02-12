@@ -83,7 +83,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
       var tracks = result.tracks.items;
 
       if (!tracks.length) {
-        console.log('Nothing found.');
+        $scope.err = 'Nothing found.';
         // Handle nothing found.
       } else {
           // Use myKEXP playlist id for now.
@@ -98,7 +98,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
           return Spotify.addToPlaylist(user, trackId, playlistId);
         }
     }).catch(function (err) {
-      console.error('Error while searching for track: ' + err);
+      $scope.err = err.message;
     });
   };
 })
@@ -236,7 +236,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
       var tracks = result.tracks.items;
 
       if (!tracks.length) {
-        console.log('Nothing found.');
+        $scope.err = 'Nothing found.';
       } else {
         var trackId = tracks[0].id;
 
@@ -246,7 +246,7 @@ angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCt
         return Spotify.addToPlaylist(user, trackId, playlistId);
       }
     }).catch(function (err) {
-      console.error('Error while searching for track: ' + err);
+      $scope.err = err.message;
     });
   };
 })
