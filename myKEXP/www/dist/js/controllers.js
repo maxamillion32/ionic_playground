@@ -2,6 +2,22 @@
 
 angular.module('kexp.controllers', ['ionic', 'kexp.services']).controller('AppCtrl', function ($scope, $ionicModal, $timeout, User, Spotify) {
 
+  // Refresh Spotify tokens if user has authenticated with Spotify before.
+  $scope.$on('$ionicView.enter', function (e) {
+    var user = User.getUser();
+    var refresh_token = user.spotify ? user.spotify.tokens.refresh_token : null;
+
+    if (refresh_token) {
+      Spotify.refreshTokens(refresh_token).then(function (tokens) {
+        User.setAccessToken(tokens);
+        User.save();
+      }).catch(function (err) {
+        var error = JSON.stringify(err);
+        console.error('Error while refreshing tokens: ' + error);
+      });
+    }
+  });
+
   // Form data for the login modal
   $scope.loginData = {};
 
